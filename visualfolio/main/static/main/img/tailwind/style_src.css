@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* Background colors */
+    --first-bg-color: #ffffff;
+    --second-bg-color: #f8f8f8;
+    --third-bg-color: #f1f1f1;
+    --border-color: #e7e7e7;
+    --mid-bg-color: #b7b7b7;
+    --walkthrough-bg-color: white; 
+    
+    /* Text colors */
+    --first-text-color: #121212;
+    --second-text-color: #272727;
+    --third-text-color: #616161;
+    --disabled-text-color: #aeaeae;
+
+    /* Green/red */
+    --green-hue: 117;
+    --green-text-color: hsl(var(--green-hue), 100%, 26%);
+    --green-text-free-color: hsl(var(--green-hue), 60%, 50%);
+    --green-bg-color: hsl(var(--green-hue), 80%, 75%);
+
+    --red-hue: 0;
+    --red-text-color: hsl(var(--red-hue), 100%, 36%);
+    --red-text-free-color: hsl(var(--red-hue), 100%, 70%);
+    --red-bg-color: hsl(var(--red-hue), 100%, 87%);
+
+    --accent-hue: 186;
+    --accent-saturation: 100%;
+    --first-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 50%);
+    --second-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 42%);
+}
+
+.dark {
+     /* Background colors */
+     --first-bg-color: #0d0d0d;
+     --second-bg-color: #202020;
+     --third-bg-color: #292929;
+     --border-color: #2b2b2b;
+     --mid-bg-color: #3e3e3e;
+     --walkthrough-bg-color: #191919; 
+    
+    /* Text colors */
+    --first-text-color: #ffffff;
+    --second-text-color: #cecece;
+    --third-text-color: #ababab;
+    --disabled-text-color: #5d5d5d;
+
+
+    /* Green/red */
+    --green-hue: 122;
+    --green-text-color: hsl(var(--green-hue), 80%, 71%);
+    --green-text-free-color: hsl(var(--green-hue), 40%, 50%);
+    --green-bg-color: hsl(var(--green-hue), 48%, 21%);
+
+    --red-hue: 0;
+    --red-text-color: hsl(var(--red-hue), 100%, 70%);
+    --red-text-free-color: hsl(var(--red-hue), 60%, 60%);
+    --red-bg-color: hsl(var(--red-hue), 44%, 25%);
+}
+
+
+ /* Small screen message */
+.desktop-only-message {
+    display: none; 
+}
+
+@media (max-width: 767px) {
+    .desktop-only-message {
+        display: block;
+    }
+    .wrapper {
+        display: none;
+    }
+}
+
+ /* Custom stroke width for icons */
+.icon-custom-stroke-width {
+    stroke-width: 1.7;
+  }

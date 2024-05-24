@@ -14,3 +14,6 @@ logs/
 .DS_Store
 
 *.sqlite3
+
+# Ignore tailwind output file
+**/style.css
