@@ -1,0 +1,162 @@
+[
+    {
+        "model": "main.asset",
+        "pk": "AAPL.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Apple Inc",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "ADA",
+        "fields": {
+            "asset_class": "Decentralized Digital Assets",
+            "name": "Cardano",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "BTC",
+        "fields": {
+            "asset_class": "Decentralized Digital Assets",
+            "name": "Bitcoin",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "CAT.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Caterpillar Inc",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "CHF",
+        "fields": {
+            "asset_class": "Fiat Currencies",
+            "name": "Swiss franc",
+            "symbol": null,
+            "is_liquid": true
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "DIA.US",
+        "fields": {
+            "asset_class": "Publicly Traded Funds",
+            "name": "SPDR Dow Jones Industrial Average ETF Trust",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "ETH",
+        "fields": {
+            "asset_class": "Decentralized Digital Assets",
+            "name": "Ethereum",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "EUR",
+        "fields": {
+            "asset_class": "Fiat Currencies",
+            "name": "Euro",
+            "symbol": "€",
+            "is_liquid": true
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "GOOG.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Alphabet Inc - Class C",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "MU.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Micron Technology Inc",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "NFLX.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Netflix Inc",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "NVDA.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Nvidia Corp",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "SIE.DE",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Siemens AG",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "SNOW.US",
+        "fields": {
+            "asset_class": "Public Equity",
+            "name": "Snowflake Inc",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "SPY.US",
+        "fields": {
+            "asset_class": "Publicly Traded Funds",
+            "name": "SPDR S&P 500 ETF Trust",
+            "symbol": null,
+            "is_liquid": false
+        }
+    },
+    {
+        "model": "main.asset",
+        "pk": "USD",
+        "fields": {
+            "asset_class": "Fiat Currencies",
+            "name": "United States dollar",
+            "symbol": "$",
+            "is_liquid": true
+        }
+    }
+]
