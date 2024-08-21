@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+              rel="stylesheet">
+        <script>
+                // Function to get cookie value
+                function getCookie(name) {
+                  const value = `; ${document.cookie}`;
+                  const parts = value.split(`; ${name}=`);
+                  if (parts.length === 2) return parts.pop().split(';').shift();
+               }
+         
+               // Function to set cookie value
+               function setCookie(name, value) {
+                  document.cookie = `${name}=${value}; path=/`;
+               }
+         
+               const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+               function detectSystemTheme() {
+                  if (prefersDarkScheme.matches) {
+                     return 'dark';
+                  } else {
+                     return 'light';
+                  }
+               }
+         
+               // Function to apply the theme
+               function applyCookieTheme() {
+                  let theme = getCookie('theme');
+                  if (theme === 'dark') {
+                     document.documentElement.classList.add('dark');
+                  } else if (theme === 'light') {
+                     document.documentElement.classList.remove('dark');
+                  }
+               }
+         
+               // Initialize theme
+               (function () {
+                  let theme = getCookie('theme');
+                  if (!theme) { 
+                     detectedTheme = detectSystemTheme();
+                     setCookie('theme', detectedTheme);
+                     applyCookieTheme();
+                  }
+                  else { applyCookieTheme(); }
+               })();
+        </script>
+    </head>
+    <body>
+        <body class="flex bg-[--first-bg-color] h-screen">
+            <button id="theme-toggle"
+            class="theme-toggle h-10 w-10 bg-[--second-text-color] hover:bg-[--third-text-color] rounded-xl fixed top-3 right-3 z-20 flex items-center justify-center">
+       <!-- Sun -->
+       <svg class="block dark:hidden w-6 h-6 text-[--first-bg-color]"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=1.5  d="M12 5V3m0 18v-2M7.05 7.05 5.636 5.636m12.728 12.728L16.95 16.95M5 12H3m18 0h-2M7.05 16.95l-1.414 1.414M18.364 5.636 16.95 7.05M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+       </svg>
+       <!-- Moon -->
+       <svg class="hidden dark:block w-5 h-5 text-[--first-bg-color]"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=1.5 d="M12 21a9 9 0 0 1-.5-17.986V3c-.354.966-.5 1.911-.5 3a9 9 0 0 0 9 9c.239 0 .254.018.488 0A9.004 9.004 0 0 1 12 21Z" />
+       </svg>
+    </button>
+            <div class="desktop-only-message h-full w-full">
+                <div class="flex items-center justify-center">
+                    <div class="text-[--third-text-color] rounded-xl text-sm bg-[--third-bg-color] px-3 py-2">
+                        Visualfol.io is currently available only for desktop.
+                    </div>
+                </div>
+            </div>
+            <div class="wrapper w-full h-full text-[--first-text-color]">
+                <section>
+                    <div class="flex flex-col items-center justify-center p-10 h-screen">
+                        <a href="#" class="flex items-center text-2xl font-semibold">
+                            <!-- Logo Section -->
+                            <div class="text-center pb-10 w-52">
+                                    <picture>
+                                        <img src="{% static 'main/img/logo-white.svg' %}"
+                                             class="block dark:hidden w-full h-auto"
+                                             alt="Visualfol.io logo">
+                                        <img src="{% static 'main/img/logo-black.svg' %}"
+                                             class="hidden dark:block w-full h-auto"
+                                             alt="Visualfol.io logo">
+                                    </picture>
+                                </a>
+                            </div>
+                        </a>
+                        <div class="w-full bg-[--second-bg-color] rounded-xl border border-[--border-color] max-w-sm">
+                            <div class="p-8 space-y-4">
+                                <h1 class="font-display font-medium text-2xl text-[--first-text-color]">Sign in</h1>
+                                {% if messages %}
+                                    {% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}
+                                {% endif %}
+                                <form class="space-y-6" action="{% url 'demo_login' %}" method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                        <input type="text"
+                                               name="username"
+                                               id="username"
+                                               placeholder="username"
+                                               value="{{ username }}"
+                                               readonly
+                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                    </div>
+                                    <div>
+                                        <input type="password"
+                                               name="password"
+                                               id="password"
+                                               placeholder="password"
+                                               value="{{ password }}"
+                                               readonly
+                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <a href="#"
+                                           class="text-sm transition duration-100 font-medium hover:underline text-[--first-accent-color]">Forgot password?</a>
+                                        <button type="submit"
+                                                class="text-white bg-[--first-accent-color] transition duration-100 hover:bg-[--second-accent-color] focus:outline-none font-medium rounded-lg px-5 py-2 text-center">
+                                            Sign in
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="h-20"></div>
+                    </div>
+                </section>
+            </div>
+            <script>
+        window.onload = function () {
+           document.getElementById('spinner').classList.add('hidden');
+  
+           var pageContent = document.getElementById('page-content');
+           pageContent.classList.remove('invisible');
+        };
+            </script>
+            <script>
+        document.addEventListener('DOMContentLoaded', function () {
+           let currentTheme = getCookie('theme');
+           const themeToggle = document.getElementById('theme-toggle');
+           themeToggle.addEventListener('click', function () {
+              // Toggle the theme value
+              currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+              setCookie('theme', currentTheme);
+  
+              // Reload whole page to update theme on ssr components too  
+              applyCookieTheme();            
+           });
+        });
+            </script>
+        </body>
+    </html>
