@@ -56,6 +56,30 @@ def humanize_number(value, fraction_point=1):
     return return_value
 
 
+def generate_shades(base_color, n, theme, saturation):
+    """
+    Generates n shades of the same hue (hue of base_color).
+    """
+    base_rgb = mcolors.hex2color(base_color)
+    base_hue, _, _ = colorsys.rgb_to_hsv(*base_rgb)
+
+    # Determine brightness range based on theme
+    if theme == "light":
+        brightness_range = np.linspace(0.7, 0.9, n)
+    elif theme == "dark":
+        brightness_range = np.linspace(0.5, 0.7, n)
+    else:
+        raise ValueError("Theme must be either 'light' or 'dark'.")
+
+    # Generate shades of ascending brightness
+    shades = [
+        mcolors.rgb2hex(colorsys.hsv_to_rgb(base_hue, saturation, brightness))
+        for brightness in brightness_range
+    ]
+
+    return shades
+
+
 def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
     # Convert dates to datetime format
     df["date"] = pd.to_datetime(df["date"])
@@ -233,5 +257,142 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
         output_type="div",
         config={**plotly_configuration, "scrollZoom": False, "displayModeBar": False},
     )
+
+    return graph_div
+
+
+def generate_relative_streamgraph(df, asset_class_sums, theme):
+    asset_class_sums.set_index("asset_class", inplace=True)
+    df.set_index("date", inplace=True)
+
+    # Normalize data to achieve relative stream
+    df_normalized = df.div(df.sum(axis=1), axis=0) * 100
+
+    # Generate figure
+    fig = go.Figure()
+
+    # For each asset
+    for col in df_normalized.columns:
+
+        # Set fill color, adjust opacity based on theme
+        fill_color = asset_class_sums.at[col, f"hsl_{theme}_background"]
+        fill_color = fill_color.replace("hsl(", "hsla(").replace(
+            ")", f",{opacity[theme]})"
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=df_normalized.index,
+                y=df_normalized[col],
+                mode="lines",
+                stackgroup="one",
+                line=dict(width=0),
+                fillcolor=fill_color,
+                name=col,
+                hoverinfo="x+y+name",
+                hoveron="points+fills",
+                fill="tonexty",
+                hovertemplate="%{y:.2f}%",
+                cliponaxis=False,
+            )
+        )
+
+    # Add legend
+    fig.update_layout(
+        yaxis=dict(tickmode="array", tickvals=[20, 40, 60, 80]),
+        showlegend=True,
+    )
+
+    # Set style
+    fig.update_layout(plotly_layout[theme])
+    fig.update_layout(
+        height=196,
+        autosize=True,
+        hovermode="x",
+        margin=dict(l=25, r=25, t=15, b=35),
+        xaxis=dict(
+            zeroline=False,
+            zerolinewidth=1,
+            showgrid=False,
+            showspikes=True,
+            spikemode="across",
+            spikethickness=1,
+            spikedash="dash",
+            spikecolor="gray",
+            spikesnap="cursor",
+        ),
+        showlegend=False,
+        yaxis=dict(
+            zeroline=False,
+            zerolinewidth=1,
+            showgrid=True,
+            showticklabels=False,
+        ),
+    )
+
+    graph_div = plot(
+        fig,
+        output_type="div",
+        config={**plotly_configuration, "scrollZoom": False, "displayModeBar": False},
+    )
+
+    return graph_div
+
+
+def generate_assets_donut(assets, theme, center_text, base_currency):
+
+    # Sort assets to display grouped by asset class
+    assets.sort_values(["asset_class_tot_value", "tot_current_value"], inplace=True)
+
+    # Generate shades to distinguish assets
+    saturation = {"dark": 0.85, "light": 0.8}
+    assets["color"] = assets.groupby("asset_class")["color"].transform(
+        lambda color_series: generate_shades(
+            color_series.iloc[0],
+            len(color_series),
+            theme=theme,
+            saturation=saturation[theme],
+        )
+    )
+
+    # Format plot labels
+    def wrap_labels(label, max_len=15):
+        return "<br>".join(textwrap.wrap(label, width=max_len, break_long_words=False))
+
+    assets["asset_wrapped"] = assets["asset"].apply(lambda x: wrap_labels(x))
+
+    # Generate figure
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=assets["asset_wrapped"],
+                values=assets["tot_current_value"],
+                hole=0.7,
+                textposition="outside",
+                textinfo="label",
+                sort=False,
+                hovertemplate="%{label}<br>%{value:,.2f} "
+                + base_currency
+                + "<br>%{percent:.2%}<extra></extra>",
+                marker=dict(colors=assets["color"]),
+            )
+        ]
+    )
+
+    # Add annotations
+    fig.add_annotation(
+        text=f"{center_text:,.2f} {base_currency}",
+        font=dict(size=16),
+        x=0.5,
+        y=0.5,
+        showarrow=False,
+    )
+
+    fig.update_layout(plotly_layout[theme])
+    fig.update_layout(
+        showlegend=False,
+    )
+
+    graph_div = plot(fig, output_type="div", config=plotly_configuration)
 
     return graph_div

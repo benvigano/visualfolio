@@ -23,6 +23,8 @@ from main.utils.demo import generate_realistic_user
 from main.services.stateless.visualization import (
     generate_streamgraph,
     hex_to_hsl_components,
+    generate_relative_streamgraph,
+    generate_assets_donut,
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
@@ -533,6 +535,155 @@ class HomeView(LoginRequiredMixin, TemplateView):
 class AssetsView(LoginRequiredMixin, TemplateView):
     template_name = "main/assets.html"
     login_url = "demo_login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get user's BalanceHistory
+        balance_histories = BalanceHistory.objects.filter(
+            account_item__account__user=self.request.user
+        ).values(
+            "account_item__account",
+            "account_item__asset",
+            "account_item__asset__asset_class__name",
+            "account_item__asset__asset_class__color",
+            "balance",
+            "date",
+        )
+        balance_histories_df = pd.DataFrame(list(balance_histories))
+        balance_histories_df.rename(
+            columns={
+                "account_item__account": "account",
+                "account_item__asset": "asset",
+                "account_item__asset__asset_class__name": "asset_class",
+                "account_item__asset__asset_class__color": "asset_class_color",
+            },
+            inplace=True,
+        )
+
+        # Calculate value history from BalanceHistory
+        balance_histories_df["price"] = balance_histories_df.apply(
+            lambda x: get_prices_daily(
+                instrument=x["asset"],
+                quote_currency=settings.BASE_CURRENCY["code"],
+                timespan_end=x["date"],
+            ).iloc[-1],
+            axis=1,
+        )
+        balance_histories_df["value"] = (
+            balance_histories_df["price"] * balance_histories_df["balance"]
+        )
+
+        # Sum values of items of the same asset class
+        grouping_field = "asset_class"
+        grouped = balance_histories_df.groupby(
+            ["date", grouping_field], as_index=False
+        ).agg({"value": "sum"})
+        pivot = grouped.pivot(
+            index="date", columns=grouping_field, values="value"
+        ).reset_index()
+
+        # Get user's AccountItems
+        accounts_items = (
+            AccountItem.objects.filter(account__user=self.request.user)
+            .select_related("asset__asset_class")
+            .values(
+                "account",
+                "asset",
+                "asset__name",
+                "balance",
+                "asset__asset_class__name",
+                "asset__asset_class__color",
+            )
+        )
+        accounts_items_df = pd.DataFrame(list(accounts_items))
+        accounts_items_df.rename(
+            columns={
+                "asset__asset_class__name": "asset_class",
+                "asset__asset_class__color": "color",
+                "asset__name": "name",
+            },
+            inplace=True,
+        )
+
+        # Calculate current values
+        accounts_items_df["current_price"] = accounts_items_df.apply(
+            lambda x: get_prices_daily(
+                x["asset"],
+                settings.BASE_CURRENCY["code"],
+                datetime.datetime.now().date(),
+            ),
+            axis=1,
+        )
+        accounts_items_df["current_value"] = (
+            accounts_items_df["current_price"] * accounts_items_df["balance"]
+        )
+        accounts_items_df.sort_values("asset_class", inplace=True)
+
+        # Group by asset class
+        d = {
+            "asset_class_tot_value": ("current_value", "sum"),
+            "color": ("color", "first"),
+        }
+        asset_class_sums = (
+            accounts_items_df.groupby(["asset_class"]).agg(**d).reset_index()
+        )
+        accounts_items_df = accounts_items_df.merge(
+            asset_class_sums.drop(columns=["color"]), on="asset_class"
+        )
+        asset_class_sums["allocation"] = (
+            asset_class_sums["asset_class_tot_value"]
+            / asset_class_sums["asset_class_tot_value"].sum()
+        ) * 100
+
+        # Generate themed colors for each asset class
+        asset_class_sums["hsl_dark_background"] = asset_class_sums["color"].apply(
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 70%, 40%)"
+        )
+        asset_class_sums["hsl_light_background"] = asset_class_sums["color"].apply(
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
+        )
+
+        d = {
+            "asset_class_tot_value": ("asset_class_tot_value", "first"),
+            "asset_class": ("asset_class", "first"),
+            "color": ("color", "first"),
+            "tot_current_value": ("current_value", "sum"),
+            "tot_balance": ("balance", "sum"),
+        }
+        assets = accounts_items_df.groupby(["asset", "name"]).agg(**d).reset_index()
+
+        # Generate themed colors for each asset
+        assets["hsl_dark_background"] = assets["color"].apply(
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 70%, 40%)"
+        )
+        assets["hsl_light_background"] = assets["color"].apply(
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
+        )
+        assets["allocation"] = (
+            assets["tot_current_value"] / assets["tot_current_value"].sum()
+        ) * 100
+
+        tot_value = assets["tot_current_value"].sum()
+
+        # Pass data to template
+        context["donut"] = generate_assets_donut(
+            assets, self.request.theme, tot_value, settings.BASE_CURRENCY["symbol"]
+        )
+        context["assets"] = (
+            assets.sort_values("tot_current_value", ascending=False)
+            .drop(columns=["asset_class_tot_value"])
+            .to_dict("records")
+        )
+        context["asset_classes"] = asset_class_sums.sort_values(
+            "asset_class_tot_value", ascending=False
+        ).to_dict("records")
+        context["relative_streamgraph"] = generate_relative_streamgraph(
+            pivot, asset_class_sums, self.request.theme
+        )
+        context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+
+        return context
 
 
 class AccountsView(LoginRequiredMixin, TemplateView):
