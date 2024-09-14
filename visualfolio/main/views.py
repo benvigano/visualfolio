@@ -25,6 +25,8 @@ from main.services.stateless.visualization import (
     hex_to_hsl_components,
     generate_relative_streamgraph,
     generate_assets_donut,
+    generate_accounts_donut,
+    generate_accounts_country_donut,
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
@@ -689,6 +691,167 @@ class AssetsView(LoginRequiredMixin, TemplateView):
 class AccountsView(LoginRequiredMixin, TemplateView):
     template_name = "main/accounts.html"
     login_url = "demo_login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        def theme_account_color(hex_color, s_change, l_change):
+            """
+            Style account color to match theme
+            """
+            h, s, l = hex_to_hsl_components(hex_color)
+            s = max(0, min(100, s + (s_change * 100)))
+            l = max(0, min(100, l + (l_change * 100)))
+            return f"hsl({h}, {s}%, {l}%)"
+
+        # Get user's AccountItems
+        accounts_items = AccountItem.objects.filter(
+            account__user=self.request.user
+        ).values(
+            "account__institution_name",
+            "account__color",
+            "account__country",
+            "balance",
+            "asset",
+        )
+        accounts_items_df = pd.DataFrame(list(accounts_items))
+        accounts_items_df.rename(
+            columns={
+                "account__institution_name": "account",
+                "account__color": "account_color",
+                "account__country": "account_country",
+            },
+            inplace=True,
+        )
+
+        # Calculate current value of AccountItems
+        accounts_items_df["current_price"] = accounts_items_df.apply(
+            lambda x: get_prices_daily(
+                x["asset"],
+                settings.BASE_CURRENCY["code"],
+                datetime.datetime.now().date(),
+            ),
+            axis=1,
+        )
+        accounts_items_df["current_value"] = (
+            accounts_items_df["current_price"] * accounts_items_df["balance"]
+        )
+
+        # Style colors based on theme
+        accounts_items_df["hsl_dark_background"] = accounts_items_df[
+            "account_color"
+        ].apply(lambda x: theme_account_color(x, -0.05, -0.10))
+        accounts_items_df["hsl_light_background"] = accounts_items_df[
+            "account_color"
+        ].apply(lambda x: theme_account_color(x, 0.05, 0.10))
+
+        # Calculate total asset value for each account
+        d = {
+            "account_tot_value": ("current_value", "sum"),
+            "account_country": ("account_country", "first"),
+            "hsl_dark_background": ("hsl_dark_background", "first"),
+            "hsl_light_background": ("hsl_light_background", "first"),
+        }
+        account_sums = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        account_sums["account_value_perc"] = (
+            account_sums["account_tot_value"] / account_sums["account_tot_value"].sum()
+        ) * 100
+
+        # Calculate transaction volume data
+
+        # Get user's Transactions
+        transactions = Transaction.objects.filter(
+            account__user=self.request.user
+        ).values("account__institution_name", "amount", "datetime")
+        transactions_df = pd.DataFrame(list(transactions))
+
+        if not transactions_df.empty:
+            transactions_df["date"] = pd.to_datetime(
+                transactions_df["datetime"]
+            ).dt.date
+
+            grouped = (
+                transactions_df.groupby(["account__institution_name", "date"])
+                .agg(
+                    total_vol=("amount", lambda x: x.abs().sum()),
+                    total_incoming=("amount", lambda x: x[x > 0].sum()),
+                    total_outgoing=("amount", lambda x: -x[x < 0].sum()),
+                )
+                .reset_index()
+            )
+
+            # Calculate monthly averages
+            daily_agg = (
+                grouped.groupby("account__institution_name")
+                .agg(
+                    avg_daily_volume=("total_vol", "mean"),
+                    avg_daily_incoming=("total_incoming", "mean"),
+                    avg_daily_outgoing=("total_outgoing", "mean"),
+                )
+                .reset_index()
+            )
+            daily_agg["avg_monthly_volume"] = daily_agg["avg_daily_volume"] * 30
+            daily_agg["avg_monthly_incoming"] = daily_agg["avg_daily_incoming"] * 30
+            daily_agg["avg_monthly_outgoing"] = daily_agg["avg_daily_outgoing"] * 30
+
+            account_sums = (
+                account_sums.merge(
+                    daily_agg[
+                        [
+                            "account__institution_name",
+                            "avg_monthly_volume",
+                            "avg_monthly_incoming",
+                            "avg_monthly_outgoing",
+                        ]
+                    ],
+                    left_on="account",
+                    right_on="account__institution_name",
+                    how="left",
+                )
+                .drop("account__institution_name", axis=1)
+                .fillna(0)  # If no transactions are linked to the account, fill with 0
+            )
+
+        # If the user has no transactions at all, set all to 0
+        else:
+            account_sums["avg_monthly_volume"] = 0
+            account_sums["avg_monthly_incoming"] = 0
+            account_sums["avg_monthly_outgoing"] = 0
+
+        # Sort by volume
+        account_sums.sort_values("account_tot_value", ascending=False, inplace=True)
+
+        accounts_items_df.drop(
+            columns=["balance", "asset", "current_price"], inplace=True
+        )
+
+        # Generate accounts donut plot
+        d = {
+            "account_total_value": ("current_value", "sum"),
+            "hsl_dark_background": ("hsl_dark_background", "first"),
+            "hsl_light_background": ("hsl_light_background", "first"),
+            "country": ("account_country", "first"),
+        }
+        accounts_df = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        accounts_donut = generate_accounts_donut(
+            accounts_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
+        )
+
+        # Generate account countries donut plot
+        d = {"account_total_value": ("current_value", "sum")}
+        accounts_country_df = (
+            accounts_items_df.groupby(["account_country"]).agg(**d).reset_index()
+        )
+        accounts_country_donut = generate_accounts_country_donut(
+            accounts_country_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
+        )
+
+        context["accounts_donut"] = accounts_donut
+        context["accounts_country_donut"] = accounts_country_donut
+        context["accounts_table"] = account_sums.to_dict("records")
+        context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+
+        return context
 
 
 class EarningsView(LoginRequiredMixin, TemplateView):

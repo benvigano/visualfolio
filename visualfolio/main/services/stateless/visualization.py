@@ -396,3 +396,82 @@ def generate_assets_donut(assets, theme, center_text, base_currency):
     graph_div = plot(fig, output_type="div", config=plotly_configuration)
 
     return graph_div
+
+
+def generate_accounts_donut(accounts, theme, base_currency):
+    # Sort accounts by descending total account value
+    accounts.sort_values(["account_total_value"], inplace=True)
+
+    # Format plot lables
+    def wrap_labels(label, max_len=15):
+        return '<br>'.join(textwrap.wrap(label, width=max_len, break_long_words=False))
+    accounts["accounts_wrapped"] = accounts["account"].apply(lambda x: wrap_labels(x))
+
+    # Generate figure
+    fig = go.Figure(data=[go.Pie(
+        labels=accounts["accounts_wrapped"],
+        values=accounts['account_total_value'],
+        hole=0.6,
+        textinfo='none',
+        hovertemplate='%{label}<br>%{value:,.2f} ' + base_currency + '<br>%{percent:.2%}<extra></extra>',
+        marker=dict(colors=accounts[f"hsl_{theme}_background"]),
+    )])
+
+    # Set plot style
+    fig.update_layout(
+        margin=dict(l=40, r=40, t=40, b=40),
+        height=210,
+        showlegend=True,
+        legend=dict(
+            orientation='v',
+            yanchor='top',
+            y=1,
+            xanchor='left',
+            x=0.95,
+        ))
+
+    fig.update_layout(plotly_layout[theme])
+
+    graph_div = plot(fig, output_type='div', config=plotly_configuration)
+
+    return graph_div
+
+
+def generate_accounts_country_donut(accounts_country, theme, base_currency):
+    # Sort countries by descending total asset value of related accounts
+    accounts_country.sort_values(["account_total_value"], inplace=True)
+
+    # Format plot lables
+    def wrap_labels(label, max_len=15):
+        return '<br>'.join(textwrap.wrap(label, width=max_len, break_long_words=False))
+    accounts_country["accounts_country_wrapped"] = accounts_country["account_country"].apply(lambda x: wrap_labels(x))
+
+    # Generate figure
+    fig = go.Figure(data=[go.Pie(
+        labels=accounts_country["accounts_country_wrapped"],
+        values=accounts_country['account_total_value'],
+        hole=0.6,
+        textinfo='none',
+        sort=False,
+        hovertemplate='%{label}<br>%{value:,.2f} ' + base_currency + '<br>%{percent:.2%}<extra></extra>',
+        marker=dict(colors=["#2ab668", "#3255a4"]),
+    )])
+
+    # Set plot style
+    fig.update_layout(
+        margin=dict(l=40, r=40, t=40, b=40),
+        height=210,
+        showlegend=True,
+        legend=dict(
+            orientation='v',
+            yanchor='top',
+            y=1,
+            xanchor='left',
+            x=0.95,
+        ))
+
+    fig.update_layout(plotly_layout[theme])
+
+    graph_div = plot(fig, output_type='div', config=plotly_configuration)
+
+    return graph_div
