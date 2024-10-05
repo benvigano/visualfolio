@@ -2,6 +2,7 @@ import os
 import json
 import datetime
 import pandas as pd
+import numpy as np
 from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
@@ -28,6 +29,7 @@ from main.services.stateless.visualization import (
     generate_assets_donut,
     generate_accounts_donut,
     generate_accounts_country_donut,
+    generate_earnings_barplot,
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
@@ -857,35 +859,35 @@ class AccountsView(LoginRequiredMixin, TemplateView):
 
 class TransactionsView(LoginRequiredMixin, ListView):
     model = Transaction
-    template_name = 'main/transactions.html'
-    login_url = 'demo_login'
-    context_object_name = 'transactions'
+    template_name = "main/transactions.html"
+    login_url = "demo_login"
+    context_object_name = "transactions"
 
     def get_queryset(self):
         # Get user's transactions (prefetch related fields)
-        return Transaction.objects.filter(account__user=self.request.user) \
-            .select_related('asset', 'account') \
-            .order_by('-datetime')
+        return (
+            Transaction.objects.filter(account__user=self.request.user)
+            .select_related("asset", "account")
+            .order_by("-datetime")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        transactions = context['transactions']
+        transactions = context["transactions"]
 
         # Get all assets that appear in transactions, sorted by descending txn count
-        context['assets'] = (
-            Asset.objects
-            .filter(transaction__account__user=self.request.user)
-            .annotate(transaction_count=Count('transaction'))
-            .order_by('-transaction_count')
+        context["assets"] = (
+            Asset.objects.filter(transaction__account__user=self.request.user)
+            .annotate(transaction_count=Count("transaction"))
+            .order_by("-transaction_count")
             .distinct()
         )
 
         # Get all accounts sorted by descending txn count
-        context['accounts'] = (
-            Account.objects
-            .filter(user=self.request.user)
-            .annotate(transaction_count=Count('transaction'))
-            .order_by('-transaction_count')
+        context["accounts"] = (
+            Account.objects.filter(user=self.request.user)
+            .annotate(transaction_count=Count("transaction"))
+            .order_by("-transaction_count")
             .distinct()
         )
 
@@ -893,7 +895,7 @@ class TransactionsView(LoginRequiredMixin, ListView):
         formatted_transactions = []
         for txn in transactions:
             txn.formatted_amount = "{:,.2f}".format(abs(txn.amount))
-            txn.asset.symbol = getattr(txn.asset, 'symbol', txn.asset.name)
+            txn.asset.symbol = getattr(txn.asset, "symbol", txn.asset.name)
 
             h, s, l = hex_to_hsl_components(txn.account.color)
             txn.hsl_dark_background = f"hsl({h}, 50%, 29%)"
@@ -903,9 +905,9 @@ class TransactionsView(LoginRequiredMixin, ListView):
 
             formatted_transactions.append(txn)
 
-        context['transactions'] = formatted_transactions
-        context['today'] = datetime.datetime.now().date()
-        context['base_currency'] = settings.BASE_CURRENCY["symbol"]
+        context["transactions"] = formatted_transactions
+        context["today"] = datetime.datetime.now().date()
+        context["base_currency"] = settings.BASE_CURRENCY["symbol"]
 
         return context
 
@@ -913,3 +915,100 @@ class TransactionsView(LoginRequiredMixin, ListView):
 class EarningsView(LoginRequiredMixin, TemplateView):
     template_name = "main/earnings.html"
     login_url = "demo_login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        transactions = Transaction.objects.filter(
+            amount__gt=0, account__user=self.request.user
+        )
+
+        # Convert transactions to DataFrame
+        data = transactions.values("datetime", "entity", "amount")
+        df = pd.DataFrame(data)
+
+        demo_colors_map = {
+            "light": {
+                "BestCompany INC": "hsl(204, 100%, 49%)",
+                "Subscription Blog Income": "hsl(46, 88%, 60%)",
+                "App Store Revenue": "hsl(34, 87%, 60%)",
+            },
+            "dark": {
+                "BestCompany INC": "hsl(204, 65%, 44%)",
+                "Subscription Blog Income": "hsl(40, 91%, 48%)",
+                "App Store Revenue": "hsl(153, 40%, 54%)",
+            },
+        }
+        df["color"] = df["entity"].map(demo_colors_map[self.request.theme])
+
+        # Ensure 'datetime' is a datetime object
+        df["datetime"] = pd.to_datetime(df["datetime"])
+
+        # Extract the month from datetime
+        df["month"] = df["datetime"].dt.to_period("M").dt.to_timestamp()
+
+        # Group by 'month' and 'entity' with sum of 'amount'
+        grouped_df = (
+            df.groupby(["month", "entity", "color"])["amount"].sum().reset_index()
+        )
+
+        # Calculate the start_month for x-axis alignment
+        start_month = grouped_df["month"].min()
+
+        # Initialize a list to store trend data
+        trend_data = []
+        entities = grouped_df["entity"].unique()
+        total_volume = grouped_df["amount"].sum()
+
+        for entity in entities:
+            df_entity = grouped_df[grouped_df["entity"] == entity].copy()
+
+            color = df_entity["color"].tolist()[0]
+
+            # Compute 'x' as months since start_month
+            df_entity["x"] = (df_entity["month"].dt.year - start_month.year) * 12 + (
+                df_entity["month"].dt.month - start_month.month
+            )
+
+            x = df_entity["x"].values
+            y = df_entity["amount"].values
+
+            # Linear regression to find m
+            if len(x) > 1:
+                m, _ = np.polyfit(x, y, 1)
+            else:
+                m, _ = 0, y[0]  # Default values if not enough data points
+
+            total_volume_entity = df_entity["amount"].sum()
+            mean_y = y.mean() if len(y) > 0 else 0
+
+            monthly_percentage_increase = (m / mean_y) * 100 if mean_y > 0 else 0
+            yearly_percentage_increase = monthly_percentage_increase * 12
+
+            trend_data.append(
+                {
+                    "entity": entity,
+                    "delta_monthly": m,
+                    "delta_yearly": m * 12,
+                    "delta_monthly_percentage": monthly_percentage_increase,
+                    "delta_yearly_percentage": yearly_percentage_increase,
+                    "total_volume_entity": total_volume_entity,
+                    "total_volume_entity_percentage": (
+                        total_volume_entity / total_volume
+                    )
+                    * 100,
+                    "color": color,
+                }
+            )
+
+        # Create DataFrame for trend data
+        df_trends = pd.DataFrame(trend_data).sort_values(
+            "total_volume_entity_percentage", ascending=False
+        )
+        context["earnings_sources"] = df_trends.to_dict("records")
+        context["graph"] = generate_earnings_barplot(
+            grouped_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
+        )
+        context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+
+        return context

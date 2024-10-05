@@ -475,3 +475,57 @@ def generate_accounts_country_donut(accounts_country, theme, base_currency):
     graph_div = plot(fig, output_type='div', config=plotly_configuration)
 
     return graph_div
+
+
+def generate_earnings_barplot(grouped_df, theme, base_currency):
+    # Extract unique entities
+    entities = grouped_df[["entity", "color"]].drop_duplicates()
+
+    # Format month strings
+    grouped_df["month_str"] = grouped_df["month"].apply(
+        lambda x: pd.Timestamp(x).strftime("%b %Y")
+    )
+
+    # Prepare traces for barplot
+    data = []
+    for _, (entity, color) in entities.iterrows():
+        grouped_df_entity = grouped_df[grouped_df["entity"] == entity]
+        max_amount = grouped_df_entity["amount"].max()
+
+        # Bar trace for the entity
+        trace = go.Bar(
+            x=grouped_df_entity["month_str"],
+            y=grouped_df_entity["amount"],
+            name=entity,
+            marker_color=color,
+            marker_line_width=0,  # Remove bar outline
+            marker=dict(cornerradius="100%"),
+            hovertemplate="%{y:,.2f} " + base_currency + "<extra></extra>",
+        )
+        data.append(trace)
+
+    # Generate barplot
+    fig = go.Figure(data=data)
+
+    fig.update_layout(plotly_layout[theme])
+
+    # Set style
+    fig.update_layout(
+        barmode="group",
+        margin=dict(l=20, r=20, t=20, b=20),  # Reduced margins
+        bargap=0.4,  # gap between bars of adjacent location coordinates.
+        bargroupgap=0.6,  # gap between bars of the same location coordinate.
+        showlegend=False,
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True, zeroline=False, zerolinewidth=1, showgrid=True),
+        margin_pad=10,
+        height=370,
+    )
+
+    div = plot(
+        fig,
+        output_type="div",
+        config={**plotly_configuration, "scrollZoom": False, "displayModeBar": False},
+    )
+
+    return div
