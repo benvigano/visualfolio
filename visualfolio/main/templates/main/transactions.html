@@ -1,0 +1,568 @@
+{% extends "main/base.html" %}
+{% block title %}
+Transactions
+{% endblock title %}
+{% block content %}
+<h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Transactions</h1>
+<!-- Filters -->
+<div class="mb-4 flex items-center space-x-4">
+    <!-- Entity search -->
+    <div class="flex-1">
+        <!-- Updated search bar -->
+        <form class="max-w-md">
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-[--second-text-color]"
+                         aria-hidden="true"
+                         xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 20 20">
+                        <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2" d="M19 19l-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </div>
+                <input type="search"
+                       id="entity-search"
+                       class="block w-full p-2 ps-10 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                       placeholder="Search transactions"
+                       required>
+            </div>
+        </form>
+    </div>
+    <!-- Date Range Filter -->
+    <div class="relative">
+        <div class="relative">
+            <button id="dateRangeDropdownButton"
+                    data-dropdown-toggle="dateRangeDropdown"
+                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    type="button">
+                <!-- Close icon -->
+                <span class="filter-reset" id="dateRangeFilterReset">&times;</span>
+                Date
+                <svg class="w-2.5 h-2.5 ml-2 inline-block dropdown-icon"
+                     aria-hidden="true"
+                     viewBox="0 0 10 6">
+                    <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M1 1l4 4 4-4"/>
+                </svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="dateRangeDropdown"
+                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color]  border border-[--border-color] rounded-lg shadow w-64 p-4">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex items-center">
+                        <label for="start-date"
+                               class="text-xs font-medium text-[--first-text-color] mr-2 w-12">From:</label>
+                        <input type="date"
+                               id="start-date"
+                               class="w-full p-1 text-xs text-[--second-text-color] rounded-lg bg-[--third-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                               placeholder="YYYY-MM-DD">
+                    </div>
+                    <div class="flex items-center">
+                        <label for="end-date"
+                               class="text-xs font-medium text-[--first-text-color] mr-2 w-12">To:</label>
+                        <input type="date"
+                               id="end-date"
+                               class="w-full p-1 text-xs text-[--second-text-color] rounded-lg bg-[--third-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                               placeholder="YYYY-MM-DD">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Currency filter -->
+    <div class="relative">
+        <div class="relative">
+            <button id="currencyDropdownButton"
+                    data-dropdown-toggle="currencyDropdown"
+                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    type="button">
+                <!-- Close icon -->
+                <span class="filter-reset text-md" id="currencyFilterReset">&times;</span>
+                Currency
+                <svg class="w-2.5 h-2.5 ml-2 inline-block dropdown-icon"
+                     aria-hidden="true"
+                     viewBox="0 0 10 6">
+                    <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M1 1l4 4 4-4"/>
+                </svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="currencyDropdown"
+                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color] rounded-lg  border border-[--border-color] shadow w-36">
+                <ul id="currency-options"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    aria-labelledby="currencyDropdownButton">
+                    {% for asset in assets %}
+                    <li>
+                        <div class="flex items-center px-2 py-1">
+                            <input id="currency-{{ forloop.counter }}"
+                                   type="checkbox"
+                                   value="{{ asset.name }}"
+                                   class="currency-checkbox w-3 h-3 text-[var(--accent_color)] rounded focus:ring-[var(--accent_color)] transition duration-100"
+                                   checked>
+                            <label for="currency-{{ forloop.counter }}"
+                                   class="ml-2 text-xs font-medium text-[--first-text-color]">
+                                {{ asset.name }}
+                            </label>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Account filter -->
+    <div class="relative">
+        <div class="relative">
+            <button id="accountDropdownButton"
+                    data-dropdown-toggle="accountDropdown"
+                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    type="button">
+                <!-- Close icon -->
+                <span class="filter-reset" id="accountFilterReset">&times;</span>
+                Account
+                <svg class="w-2.5 h-2.5 ml-2 inline-block dropdown-icon"
+                     aria-hidden="true"
+                     viewBox="0 0 10 6">
+                    <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M1 1l4 4 4-4"/>
+                </svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="accountDropdown"
+                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color] border border-[--border-color] rounded-lg shadow w-36">
+                <ul id="account-options"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    aria-labelledby="accountDropdownButton">
+                    {% for account in accounts %}
+                    <li>
+                        <div class="flex items-center px-2 py-1">
+                            <input id="account-{{ forloop.counter }}"
+                                   type="checkbox"
+                                   value="{{ account.institution_name }}"
+                                   class="account-checkbox w-3 h-3 text-[var(--accent_color)] rounded focus:ring-[var(--accent_color)]"
+                                   checked>
+                            <label for="account-{{ forloop.counter }}"
+                                   class="ml-2 text-xs font-medium text-[--first-text-color]">
+                                {{ account.institution_name }}
+                            </label>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Transaction Type Filter -->
+    <div class="relative">
+        <div class="relative">
+            <button id="transactionTypeDropdownButton"
+                    data-dropdown-toggle="transactionTypeDropdown"
+                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    type="button">
+                <!-- Close icon -->
+                <span class="filter-reset" id="transactionTypeFilterReset">&times;</span>
+                Type
+                <svg class="w-2.5 h-2.5 ml-2 inline-block dropdown-icon"
+                     aria-hidden="true"
+                     viewBox="0 0 10 6">
+                    <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M1 1l4 4 4-4"/>
+                </svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="transactionTypeDropdown"
+                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color]  border border-[--border-color] rounded-lg shadow w-36">
+                <ul id="transaction-type-options"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    aria-labelledby="transactionTypeDropdownButton">
+                    <li>
+                        <div class="flex items-center px-2 py-1">
+                            <input id="transaction-type-incoming"
+                                   type="checkbox"
+                                   value="incoming"
+                                   class="transaction-type-checkbox w-3 h-3 text-[var(--accent_color)]  rounded focus:ring-[var(--accent_color)]"
+                                   checked>
+                            <label for="transaction-type-incoming"
+                                   class="ml-2 text-xs font-medium text-[--first-text-color]">Incoming</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center px-2 py-1">
+                            <input id="transaction-type-outgoing"
+                                   type="checkbox"
+                                   value="outgoing"
+                                   class="transaction-type-checkbox w-3 h-3 text-[var(--accent_color)]  rounded focus:ring-[var(--accent_color)]"
+                                   checked>
+                            <label for="transaction-type-outgoing"
+                                   class="ml-2 text-xs font-medium text-[--first-text-color]">Outgoing</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Transactions table with scrollable container -->
+<div class="relative overflow-x-auto bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+    <div class="overflow-y-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+            <tr>
+                <!-- Define table headers -->
+                <th scope="col" class="px-6 py-3 w-1/6 text-center whitespace-nowrap">Account</th>
+                <th scope="col" class="px-6 py-3 w-1/6 text-center whitespace-nowrap">Date</th>
+                <th scope="col" class="px-6 py-3">Entity</th>
+                <th scope="col" class="px-6 py-3 text-right w-1/4">Amount</th>
+            </tr>
+            </thead>
+            <tbody id="transactions-table-body">
+            {% for transaction in transactions %}
+            <tr class="border-t border-[--border-color] bg-[--second-bg-color]"
+                data-entity="{{ transaction.entity|lower }}"
+                data-type="{% if transaction.amount >= 0 %}incoming{% else %}outgoing{% endif %}"
+                data-currency="{{ transaction.asset.name }}"
+                data-account="{{ transaction.account.institution_name }}"
+                data-date="{{ transaction.datetime|date:'Y-m-d' }}">
+                <td class="px-6 py-2 text-center text-[--second-text-color]"
+                    style="--bg-color-light: {{ transaction.hsl_light_background }};
+                                           --text-color-light: {{ transaction.hsl_light_text }};
+                                           --bg-color-dark: {{ transaction.hsl_dark_background }};
+                                           --text-color-dark: {{ transaction.hsl_dark_text }}">
+                    <div class="inline-flex relative items-center">
+                                        <span class="relative text-xs font-medium px-2.5 pb-[0.05rem] pt-0.5 rounded-full inline-block transaction-tag">
+                                            {{ transaction.account.institution_name }}
+                                        </span>
+                    </div>
+                </td>
+                <td class="px-6 py-2 text-right whitespace-nowrap text-[--third-text-color]">
+                    {{ transaction.datetime|date:"D, d M Y" }}
+                </td>
+                <td class="px-6 py-2 font-normal text-[--first-text-color]">{{ transaction.entity }}</td>
+                <td class="tabular-nums px-6 py-2 font-normal text-right {% if transaction.amount > 0 %}text-[--green-text-free-color]{% else %}text-[--first-text-color]{% endif %}">
+                    {% if transaction.amount >= 0 %}
+                    +{{ transaction.formatted_amount }}
+                    {% else %}
+                    -{{ transaction.formatted_amount }}
+                    {% endif %}
+                    {{ transaction.asset.symbol }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- JavaScript for filtering -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const entitySearchInput = document.getElementById('entity-search');
+        const tableBody = document.getElementById('transactions-table-body');
+
+        // Currency dropdown toggle
+        const currencyDropdownButton = document.getElementById('currencyDropdownButton');
+        const currencyDropdown = document.getElementById('currencyDropdown');
+        const currencyFilterReset = document.getElementById('currencyFilterReset');
+
+        currencyDropdownButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            currencyDropdown.classList.toggle('hidden');
+        });
+
+        // Account dropdown toggle
+        const accountDropdownButton = document.getElementById('accountDropdownButton');
+        const accountDropdown = document.getElementById('accountDropdown');
+        const accountFilterReset = document.getElementById('accountFilterReset');
+
+        accountDropdownButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            accountDropdown.classList.toggle('hidden');
+        });
+
+        // Transaction type dropdown toggle
+        const transactionTypeDropdownButton = document.getElementById('transactionTypeDropdownButton');
+        const transactionTypeDropdown = document.getElementById('transactionTypeDropdown');
+        const transactionTypeFilterReset = document.getElementById('transactionTypeFilterReset');
+
+        transactionTypeDropdownButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            transactionTypeDropdown.classList.toggle('hidden');
+        });
+
+        // Date range dropdown toggle
+        const dateRangeDropdownButton = document.getElementById('dateRangeDropdownButton');
+        const dateRangeDropdown = document.getElementById('dateRangeDropdown');
+        const dateRangeFilterReset = document.getElementById('dateRangeFilterReset');
+
+        dateRangeDropdownButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            dateRangeDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!currencyDropdown.contains(event.target) && !currencyDropdownButton.contains(event.target)) {
+                currencyDropdown.classList.add('hidden');
+            }
+            if (!accountDropdown.contains(event.target) && !accountDropdownButton.contains(event.target)) {
+                accountDropdown.classList.add('hidden');
+            }
+            if (!transactionTypeDropdown.contains(event.target) && !transactionTypeDropdownButton.contains(event.target)) {
+                transactionTypeDropdown.classList.add('hidden');
+            }
+            if (!dateRangeDropdown.contains(event.target) && !dateRangeDropdownButton.contains(event.target)) {
+                dateRangeDropdown.classList.add('hidden');
+            }
+        });
+
+        // Get selected currencies
+        function getSelectedCurrencies() {
+            const currencyCheckboxes = document.querySelectorAll('.currency-checkbox');
+            const selectedCurrencies = [];
+            currencyCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    selectedCurrencies.push(checkbox.value);
+                }
+            });
+            return selectedCurrencies;
+        }
+
+        // Get selected accounts
+        function getSelectedAccounts() {
+            const accountCheckboxes = document.querySelectorAll('.account-checkbox');
+            const selectedAccounts = [];
+            accountCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    selectedAccounts.push(checkbox.value);
+                }
+            });
+            return selectedAccounts;
+        }
+
+        // Get selected transaction types
+        function getSelectedTransactionTypes() {
+            const transactionTypeCheckboxes = document.querySelectorAll('.transaction-type-checkbox');
+            const selectedTypes = [];
+            transactionTypeCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    selectedTypes.push(checkbox.value);
+                }
+            });
+            return selectedTypes;
+        }
+
+        // Event listeners for date inputs
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+
+        startDateInput.addEventListener('change', filterTransactions);
+        endDateInput.addEventListener('change', filterTransactions);
+
+        // Add event listener to currency checkboxes
+        const currencyCheckboxes = document.querySelectorAll('.currency-checkbox');
+        currencyCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', filterTransactions);
+        });
+
+        // Add event listener to account checkboxes
+        const accountCheckboxes = document.querySelectorAll('.account-checkbox');
+        accountCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', filterTransactions);
+        });
+
+        // Add event listener to transaction type checkboxes
+        const transactionTypeCheckboxes = document.querySelectorAll('.transaction-type-checkbox');
+        transactionTypeCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', filterTransactions);
+        });
+
+        // Reset buttons event listeners
+        currencyFilterReset.addEventListener('click', function(event) {
+            event.stopPropagation();
+            // Reset currency filters
+            currencyCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+            filterTransactions();
+        });
+
+        accountFilterReset.addEventListener('click', function(event) {
+            event.stopPropagation();
+            // Reset account filters
+            accountCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+            filterTransactions();
+        });
+
+        transactionTypeFilterReset.addEventListener('click', function(event) {
+            event.stopPropagation();
+            // Reset transaction type filters
+            transactionTypeCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+            filterTransactions();
+        });
+
+        dateRangeFilterReset.addEventListener('click', function(event) {
+            event.stopPropagation();
+            // Reset date range filters
+            startDateInput.value = '';
+            endDateInput.value = '';
+            filterTransactions();
+        });
+
+        // Filter function
+        function filterTransactions() {
+            const entitySearchValue = entitySearchInput.value.toLowerCase();
+            const selectedCurrencies = getSelectedCurrencies();
+            const selectedAccounts = getSelectedAccounts();
+            const selectedTransactionTypes = getSelectedTransactionTypes();
+            const startDateValue = startDateInput.value;
+            const endDateValue = endDateInput.value;
+
+            const startDate = startDateValue ? new Date(startDateValue) : null;
+            const endDate = endDateValue ? new Date(endDateValue) : null;
+
+            const rows = tableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const entity = row.getAttribute('data-entity');
+                const type = row.getAttribute('data-type');
+                const currency = row.getAttribute('data-currency');
+                const account = row.getAttribute('data-account');
+                const dateStr = row.getAttribute('data-date');
+
+                let showRow = true;
+
+                // Entity filter
+                if (entitySearchValue && !entity.includes(entitySearchValue)) {
+                    showRow = false;
+                }
+
+                // Transaction type filter
+                if (selectedTransactionTypes.length > 0 && !selectedTransactionTypes.includes(type)) {
+                    showRow = false;
+                }
+
+                // Currency filter
+                if (selectedCurrencies.length > 0 && !selectedCurrencies.includes(currency)) {
+                    showRow = false;
+                }
+
+                // Account filter
+                if (selectedAccounts.length > 0 && !selectedAccounts.includes(account)) {
+                    showRow = false;
+                }
+
+                // Date range filter
+                if (startDate || endDate) {
+                    const transactionDate = new Date(dateStr);
+                    if (startDate && transactionDate < startDate) {
+                        showRow = false;
+                    }
+                    if (endDate && transactionDate > endDate) {
+                        showRow = false;
+                    }
+                }
+
+                if (showRow) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update filter button highlighting
+            updateFilterButtonHighlighting();
+        }
+
+        function updateFilterButtonHighlighting() {
+            // Currency filter button
+            if (getSelectedCurrencies().length !== currencyCheckboxes.length) {
+                currencyDropdownButton.classList.add('filter-active');
+                currencyFilterReset.style.display = 'inline-block';
+            } else {
+                currencyDropdownButton.classList.remove('filter-active');
+                currencyFilterReset.style.display = 'none';
+            }
+
+            // Account filter button
+            if (getSelectedAccounts().length !== accountCheckboxes.length) {
+                accountDropdownButton.classList.add('filter-active');
+                accountFilterReset.style.display = 'inline-block';
+            } else {
+                accountDropdownButton.classList.remove('filter-active');
+                accountFilterReset.style.display = 'none';
+            }
+
+            // Transaction Type filter button
+            if (getSelectedTransactionTypes().length !== transactionTypeCheckboxes.length) {
+                transactionTypeDropdownButton.classList.add('filter-active');
+                transactionTypeFilterReset.style.display = 'inline-block';
+            } else {
+                transactionTypeDropdownButton.classList.remove('filter-active');
+                transactionTypeFilterReset.style.display = 'none';
+            }
+
+            // Date Range filter button
+            if (startDateInput.value || endDateInput.value) {
+                dateRangeDropdownButton.classList.add('filter-active');
+                dateRangeFilterReset.style.display = 'inline-block';
+            } else {
+                dateRangeDropdownButton.classList.remove('filter-active');
+                dateRangeFilterReset.style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        entitySearchInput.addEventListener('input', filterTransactions);
+
+        // Initial filter
+        filterTransactions();
+
+        // Prevent page refresh on "Enter" key in the search input
+        document.getElementById("entity-search").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Stops the default "Enter" key behavior
+            }
+        });
+    });
+</script>
+<style>
+    .transaction-tag {
+        background-color: var(--bg-color-light);
+        color: var(--text-color-light);
+    }
+    .dark .transaction-tag {
+        background-color: var(--bg-color-dark);
+        color: var(--text-color-dark);
+    }
+    .filter-button {
+        border-width: 2px;
+        border-color: transparent;
+    }
+    .filter-active {
+        border-color: var(--first-text-color);
+    }
+    .filter-active .filter-reset,
+    .filter-active,
+    .filter-active .dropdown-icon {
+        color: var(--first-text-color);
+    }
+    .filter-reset {
+        display: none;
+        margin-right: 4px;
+        cursor: pointer;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+    input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+    }
+</style>
+{% endblock content %}

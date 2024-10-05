@@ -15,6 +15,7 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.db import transaction
 from django.views.generic import TemplateView, ListView
+from django.db.models import Count
 
 from django.conf import settings
 
@@ -854,13 +855,61 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class TransactionsView(LoginRequiredMixin, ListView):
+    model = Transaction
+    template_name = 'main/transactions.html'
+    login_url = 'demo_login'
+    context_object_name = 'transactions'
+
+    def get_queryset(self):
+        # Get user's transactions (prefetch related fields)
+        return Transaction.objects.filter(account__user=self.request.user) \
+            .select_related('asset', 'account') \
+            .order_by('-datetime')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transactions = context['transactions']
+
+        # Get all assets that appear in transactions, sorted by descending txn count
+        context['assets'] = (
+            Asset.objects
+            .filter(transaction__account__user=self.request.user)
+            .annotate(transaction_count=Count('transaction'))
+            .order_by('-transaction_count')
+            .distinct()
+        )
+
+        # Get all accounts sorted by descending txn count
+        context['accounts'] = (
+            Account.objects
+            .filter(user=self.request.user)
+            .annotate(transaction_count=Count('transaction'))
+            .order_by('-transaction_count')
+            .distinct()
+        )
+
+        # Format transactions account badge color and string
+        formatted_transactions = []
+        for txn in transactions:
+            txn.formatted_amount = "{:,.2f}".format(abs(txn.amount))
+            txn.asset.symbol = getattr(txn.asset, 'symbol', txn.asset.name)
+
+            h, s, l = hex_to_hsl_components(txn.account.color)
+            txn.hsl_dark_background = f"hsl({h}, 50%, 29%)"
+            txn.hsl_dark_text = f"hsl({h}, 100%, 85%)"
+            txn.hsl_light_background = f"hsl({h}, 93%, 85%)"
+            txn.hsl_light_text = f"hsl({h}, 68%, 37%)"
+
+            formatted_transactions.append(txn)
+
+        context['transactions'] = formatted_transactions
+        context['today'] = datetime.datetime.now().date()
+        context['base_currency'] = settings.BASE_CURRENCY["symbol"]
+
+        return context
+
+
 class EarningsView(LoginRequiredMixin, TemplateView):
     template_name = "main/earnings.html"
     login_url = "demo_login"
-
-
-class TransactionsView(LoginRequiredMixin, ListView):
-    model = Transaction
-    template_name = "main/transactions.html"
-    login_url = "demo_login"
-    context_object_name = "transactions"
