@@ -36,7 +36,7 @@ from main.services.stateless.calculation import BalanceCalculationService
 from .models import Transaction, Account, AccountItem, Asset, Trade, BalanceHistory
 
 
-class Custom404View(View):
+class CustomErrorView(View):
     def get(self, request, *args, **kwargs):
         return redirect("home")
 

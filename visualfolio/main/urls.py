@@ -1,7 +1,5 @@
 from django.urls import path
-from django.conf.urls import handler404
 from .views import (
-    Custom404View,
     DemoLoginView,
     HomeView,
     AssetsView,
@@ -9,9 +7,6 @@ from .views import (
     EarningsView,
     TransactionsView
 )
-
-
-handler404 = Custom404View.as_view()
 
 urlpatterns = [
     path('demo-login/', DemoLoginView.as_view(), name='demo_login'),
