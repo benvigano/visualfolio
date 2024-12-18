@@ -6,8 +6,26 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# General
+# Variables
 # -----------------------------------------------------------------------------
+ENV_FILE = Path('/etc/visualfolio_env')
+REQUIRED_VARIABLES = [
+    "VISUALFOLIO_SECRET_KEY",
+    "VISUALFOLIO_DEBUG",
+    "VISUALFOLIO_MODE",
+    "VISUALFOLIO_ALLOWED_HOSTS",
+]
+
+if ENV_FILE.exists():
+    with ENV_FILE.open('r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            key, value = line.split('=', 1)
+            # Setdefault doesn't overwrite vars already set in the environment
+            os.environ.setdefault(key, value)
+
 SECRET_KEY = os.environ.get("VISUALFOLIO_SECRET_KEY")
 DEBUG = os.environ.get("VISUALFOLIO_DEBUG").lower() == "true"
 MODE = os.environ.get("VISUALFOLIO_MODE")
@@ -106,7 +124,7 @@ USE_TZ = True
 # -----------------------------------------------------------------------------
 STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Security
 # -----------------------------------------------------------------------------
@@ -139,6 +157,8 @@ else:
 # Ensure the logs directory exists
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
+STATIC_ROOT.mkdir(exist_ok=True)
+
 
 LOGGING = {
     'version': 1,
