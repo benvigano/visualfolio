@@ -7,22 +7,25 @@ Home
 {% load static %}
 <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Home</h1>
 <div class="flex flex-col space-y-6">
-    <div class="flex justify-end space-x-6">
+    <div class="flex justify-between space-x-6 items-end">
+    <h2 class="font-medium text-[--first-text-color] -mb-2">Streamgraph</h2>
+    <div class="flex space-x-6">
         <div class="flex space-x-12 items-end bg-[--second-bg-color] border border-[--border-color] rounded-xl py-3 px-5">
             <div class="text-xs text-end font-medium text-[--third-text-color] mb-1">Liquid assets value:</div>
-            <div class="w-12"></div>
+            <div class="w-4"></div>
             <div class="text-[--first-text-color] text-end text-xl tabular-nums font-normal">
                 {{ liquid_asset_value|floatformat:"2"|intcomma }} {{ base_currency }}
             </div>
         </div>
         <div class="flex space-x-12 items-end bg-[--second-bg-color] border border-[--border-color] rounded-xl py-3 px-5">
             <div class="text-xs text-end font-medium text-[--third-text-color] mb-1">Total asset value:</div>
-            <div class="w-12"></div>
+            <div class="w-4"></div>
             <div class="text-[--first-text-color] text-end text-xl tabular-nums font-normal">
                 {{ total_asset_value|floatformat:"2"|intcomma }} {{ base_currency }}
             </div>
         </div>
     </div>
+</div>
     <div class="h-[500px] bg-[--second-bg-color] border border-[--border-color] rounded-xl">{{ graph|safe }}</div>
 </div>
 <div id="triggerIcon"
