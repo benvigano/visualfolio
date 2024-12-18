@@ -119,7 +119,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
             y=df["rel_value_transactions_only"],
             mode="lines",
             line_shape="hv",
-            line=dict(color=main_color[theme], width=1),
+            line=dict(width=0),
             hoverinfo="skip",
             showlegend=False,
         )
@@ -138,7 +138,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
                 fillcolor=color_map.at[col.split("_")[0], f"hsl_{theme}_background"]
                 .replace("hsl(", "hsla(")
                 .replace(")", f",{opacity[theme]})"),
-                line=dict(color=main_color[theme], width=1),
+                line=dict(width=0),
                 name=col.split("_")[0],
             )
         )
@@ -156,7 +156,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
             ]
             .replace("hsl(", "hsla(")
             .replace(")", f",{opacity[theme]})"),
-            line=dict(color=main_color[theme], width=1),
+            line=dict(width=0),
             name=last_group_name,
         )
     )
