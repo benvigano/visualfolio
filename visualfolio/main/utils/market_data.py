@@ -23,11 +23,17 @@ def get_historical_prices_eur_demo_shifted():
 
 def get_prices_daily(instrument, quote_currency, timespan_end, timespan=datetime.timedelta(days=0)):
     if instrument == quote_currency:
-        values = pd.Series([1], index=[timespan_end])
+        timespan_start = timespan_end - timespan
+
+        if timespan == datetime.timedelta(days=0):
+            values = pd.Series([1], index=pd.Index([timespan_end], name="date"), name=instrument)
+        else:
+            date_range = pd.date_range(timespan_start, timespan_end, freq="D").to_series().apply(lambda x: x.date())
+            values = pd.Series(1, index=pd.Index(date_range, name="date"), name=instrument)
 
     else:
         data = get_historical_prices_eur_demo_shifted()
-        
+
         timespan_start = timespan_end - timespan
 
         if quote_currency != "EUR":
@@ -43,5 +49,6 @@ def get_prices_daily(instrument, quote_currency, timespan_end, timespan=datetime
             raise Exception(f"Only static demo market data is available. (timespan_start={timespan_start})")
 
         values = data[instrument].loc[timespan_start:timespan_end]
-        
+        values.index.name = "date"
+
     return values
