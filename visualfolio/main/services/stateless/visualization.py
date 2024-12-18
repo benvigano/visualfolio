@@ -307,7 +307,7 @@ def generate_relative_streamgraph(df, asset_class_sums, theme):
                 hoverinfo="x+y+name",
                 hoveron="points+fills",
                 fill="tonexty",
-                hovertemplate="%{y:.2f}%",
+                hovertemplate="%{y:.2f}%" + f"<extra><b style='color:{fill_color};'>" + col + "</b></extra>",
                 cliponaxis=False,
             )
         )
