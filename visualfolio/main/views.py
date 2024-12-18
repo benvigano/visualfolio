@@ -195,7 +195,7 @@ class DemoLoginView(View):
         # Calculate the time difference
         time_difference = current_date - last_transaction_date
         months_difference = (current_date.year - last_transaction_date.year) * 12 + (
-            current_date.month - last_transaction_date.month
+                current_date.month - last_transaction_date.month
         )
 
         for entry in transactions_data:
@@ -360,7 +360,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
             axis=1,
         )
         accounts_items_df["current_value"] = (
-            accounts_items_df["current_price"] * accounts_items_df["balance"]
+                accounts_items_df["current_price"] * accounts_items_df["balance"]
         )
 
         # Calculate totals
@@ -392,7 +392,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         )
 
         balance_histories_df["account_item"] = (
-            balance_histories_df["account"] + " - " + balance_histories_df["asset"]
+                balance_histories_df["account"] + " - " + balance_histories_df["asset"]
         )
 
         # Get user's Transactions
@@ -408,7 +408,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
             axis=1,
         )
         balance_histories_df["value"] = (
-            balance_histories_df["price"] * balance_histories_df["balance"]
+                balance_histories_df["price"] * balance_histories_df["balance"]
         )
 
         pivot_total_value = (
@@ -497,7 +497,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
             relative_balance_history_transactions_only, on="date"
         ).merge(pivot, on="date")
         df["rel_value_capital_gain_only"] = (
-            df["value"] - df["rel_value_transactions_only"]
+                df["value"] - df["rel_value_transactions_only"]
         )
 
         # Invert relative balance history accounting for investment P/L only
@@ -567,16 +567,31 @@ class AssetsView(LoginRequiredMixin, TemplateView):
         )
 
         # Calculate value history from BalanceHistory
-        balance_histories_df["price"] = balance_histories_df.apply(
-            lambda x: get_prices_daily(
-                instrument=x["asset"],
+        timespan_end = balance_histories_df["date"].max()
+        timespan_start = balance_histories_df["date"].min()
+        timespan = timespan_end - timespan_start
+
+        # Collect prices by asset
+        price_dfs = []
+        for asset in balance_histories_df['asset'].unique():
+            asset_daily_prices = get_prices_daily(
+                instrument=asset,
                 quote_currency=settings.BASE_CURRENCY["code"],
-                timespan_end=x["date"],
-            ).iloc[-1],
-            axis=1,
-        )
+                timespan_end=timespan_end,
+                timespan=timespan
+            )
+            temp_df = asset_daily_prices.reset_index().rename(columns={asset: 'price'})
+            temp_df['asset'] = asset
+            price_dfs.append(temp_df)
+
+        # Combine all price dfs
+        combined_prices_df = pd.concat(price_dfs, ignore_index=True)
+
+        # Merge
+        balance_histories_df = balance_histories_df.merge(combined_prices_df, on=['date', 'asset'], how='left')
+
         balance_histories_df["value"] = (
-            balance_histories_df["price"] * balance_histories_df["balance"]
+                balance_histories_df["price"] * balance_histories_df["balance"]
         )
 
         # Sum values of items of the same asset class
@@ -621,7 +636,7 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             axis=1,
         )
         accounts_items_df["current_value"] = (
-            accounts_items_df["current_price"] * accounts_items_df["balance"]
+                accounts_items_df["current_price"] * accounts_items_df["balance"]
         )
         accounts_items_df.sort_values("asset_class", inplace=True)
 
@@ -637,9 +652,9 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             asset_class_sums.drop(columns=["color"]), on="asset_class"
         )
         asset_class_sums["allocation"] = (
-            asset_class_sums["asset_class_tot_value"]
-            / asset_class_sums["asset_class_tot_value"].sum()
-        ) * 100
+                                                 asset_class_sums["asset_class_tot_value"]
+                                                 / asset_class_sums["asset_class_tot_value"].sum()
+                                         ) * 100
 
         # Generate themed colors for each asset class
         asset_class_sums["hsl_dark_background"] = asset_class_sums["color"].apply(
@@ -666,8 +681,8 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
         )
         assets["allocation"] = (
-            assets["tot_current_value"] / assets["tot_current_value"].sum()
-        ) * 100
+                                       assets["tot_current_value"] / assets["tot_current_value"].sum()
+                               ) * 100
 
         tot_value = assets["tot_current_value"].sum()
 
@@ -737,7 +752,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             axis=1,
         )
         accounts_items_df["current_value"] = (
-            accounts_items_df["current_price"] * accounts_items_df["balance"]
+                accounts_items_df["current_price"] * accounts_items_df["balance"]
         )
 
         # Style colors based on theme
@@ -757,8 +772,9 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         }
         account_sums = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
         account_sums["account_value_perc"] = (
-            account_sums["account_tot_value"] / account_sums["account_tot_value"].sum()
-        ) * 100
+                                                     account_sums["account_tot_value"] / account_sums[
+                                                 "account_tot_value"].sum()
+                                             ) * 100
 
         # Calculate transaction volume data
 
@@ -967,7 +983,7 @@ class EarningsView(LoginRequiredMixin, TemplateView):
 
             # Compute 'x' as months since start_month
             df_entity["x"] = (df_entity["month"].dt.year - start_month.year) * 12 + (
-                df_entity["month"].dt.month - start_month.month
+                    df_entity["month"].dt.month - start_month.month
             )
 
             x = df_entity["x"].values
@@ -994,9 +1010,9 @@ class EarningsView(LoginRequiredMixin, TemplateView):
                     "delta_yearly_percentage": yearly_percentage_increase,
                     "total_volume_entity": total_volume_entity,
                     "total_volume_entity_percentage": (
-                        total_volume_entity / total_volume
-                    )
-                    * 100,
+                                                              total_volume_entity / total_volume
+                                                      )
+                                                      * 100,
                     "color": color,
                 }
             )
