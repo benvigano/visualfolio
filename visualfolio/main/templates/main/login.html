@@ -14,12 +14,12 @@
                   const parts = value.split(`; ${name}=`);
                   if (parts.length === 2) return parts.pop().split(';').shift();
                }
-         
+
                // Function to set cookie value
                function setCookie(name, value) {
                   document.cookie = `${name}=${value}; path=/`;
                }
-         
+
                const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
                function detectSystemTheme() {
                   if (prefersDarkScheme.matches) {
@@ -28,7 +28,7 @@
                      return 'light';
                   }
                }
-         
+
                // Function to apply the theme
                function applyCookieTheme() {
                   let theme = getCookie('theme');
@@ -38,11 +38,11 @@
                      document.documentElement.classList.remove('dark');
                   }
                }
-         
+
                // Initialize theme
                (function () {
                   let theme = getCookie('theme');
-                  if (!theme) { 
+                  if (!theme) {
                      detectedTheme = detectSystemTheme();
                      setCookie('theme', detectedTheme);
                      applyCookieTheme();
@@ -76,13 +76,13 @@
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=1.5 d="M12 21a9 9 0 0 1-.5-17.986V3c-.354.966-.5 1.911-.5 3a9 9 0 0 0 9 9c.239 0 .254.018.488 0A9.004 9.004 0 0 1 12 21Z" />
        </svg>
     </button>
-            <div class="desktop-only-message h-full w-full">
-                <div class="flex items-center justify-center">
-                    <div class="text-[--third-text-color] rounded-xl text-sm bg-[--third-bg-color] px-3 py-2">
-                        Visualfol.io is currently available only for desktop.
-                    </div>
-                </div>
+    <div class="desktop-only-message min-h-screen w-full relative">
+        <div class="inset-0 absolute flex items-center justify-center">
+            <div class="text-[--third-text-color] rounded-xl bg-[--third-bg-color] px-3 py-2 m-12">
+                Visualfol.io is currently available only for larger screens.
             </div>
+        </div>
+    </div>
             <div class="wrapper w-full h-full text-[--first-text-color]">
                 <section>
                     <div class="flex flex-col items-center justify-center p-10 h-screen">
@@ -144,7 +144,7 @@
             <script>
         window.onload = function () {
            document.getElementById('spinner').classList.add('hidden');
-  
+
            var pageContent = document.getElementById('page-content');
            pageContent.classList.remove('invisible');
         };
@@ -157,9 +157,9 @@
               // Toggle the theme value
               currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
               setCookie('theme', currentTheme);
-  
-              // Reload whole page to update theme on ssr components too  
-              applyCookieTheme();            
+
+              // Reload whole page to update theme on ssr components too
+              applyCookieTheme();
            });
         });
             </script>

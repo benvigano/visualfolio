@@ -68,7 +68,7 @@
     display: none; 
 }
 
-@media (max-width: 767px) {
+@media (max-width: 950px) {
     .desktop-only-message {
         display: block;
     }

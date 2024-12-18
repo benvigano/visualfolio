@@ -56,14 +56,14 @@
        })();
     </script>
 </head>
-<body class="flex bg-[--first-bg-color] h-screen select-none">
-<div class="desktop-only-message h-full w-full">
-    <div class="flex items-center justify-center">
-        <div class="text-[--third-text-color] rounded-xl text-sm bg-[--third-bg-color] px-3 py-2">Visualfol.io is
-            currently available only for desktop.
+<body class="flex bg-[--first-bg-color] min-h-screen select-none">
+    <div class="desktop-only-message min-h-screen w-full relative">
+        <div class="inset-0 absolute flex items-center justify-center">
+            <div class="text-[--third-text-color] rounded-xl bg-[--third-bg-color] px-3 py-2 m-12">
+                Visualfol.io is currently available only for larger screens.
+            </div>
         </div>
     </div>
-</div>
 <div class="wrapper flex h-full">
     <div
             class="text-xxs px-1.5 text-yellow-800 dark:text-yellow-800 bg-yellow-300 dark:bg-yellow-200 opacity-50 border border-yellow-500 dark:border-yellow-500 rounded-md fixed top-1 z-20 flex items-center justify-center left-1/2 transform -translate-x-1/2 whitespace-nowrap">
