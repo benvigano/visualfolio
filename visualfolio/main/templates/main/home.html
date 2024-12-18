@@ -43,32 +43,32 @@ Home
     </svg>
 </div>
 <div id="walkthroughPopup"
-     class="opacity-0 transition-opacity duration-300 ease-in-out fixed bottom-4 right-16 flex items-end justify-end hidden">
-    <div class="bg-[--walkthrough-bg-color] rounded-xl border-4 border-[--mid-bg-color] border-opacity-50 p-6 relative">
+     class="opacity-0 transition-opacity duration-300 ease-in-out fixed bottom-3 right-16 flex items-end justify-end hidden">
+    <div class="bg-[--second-bg-color] rounded-2xl border-4 border-[--mid-bg-color] border-opacity-50 p-4 relative">
         <div id="walkthroughContent">
 
-            <div class="flex justify-between items-center space-x-1">
-                <div class="flex space-x-1 items-center mb-8 -ml-1">
-                    <h2 class="text-[--third-text-color] text-md font-semibold">Streamgraph</h2>
+            <div class="flex justify-between items-center space-x-1 mb-8">
+                <div class="flex space-x-1 items-center">
+                    <h2 class="pl-1 text-[--second-text-color] font-medium">Streamgraph</h2>
                 </div>
-                <div class="flex h-6 space-x-4 mb-8 items-center">
+                <div class="flex h-6 space-x-4 items-center">
                     <span class="text-xs bg-[--third-bg-color] ml-4 py-0.5 px-1 rounded-md font-mono font-semibold text-[--third-text-color]"></span>
                     <button id="nextButton"
-                            class="bg-[--second-text-color] rounded-md text-[--second-bg-color] px-3 py-1 font-medium hover:bg-[--third-text-color]">
+                            class="text-mlg bg-yellow-500 rounded-md text-[--second-bg-color] px-3 py-1 font-medium hover:bg-yellow-600">
                         Next
                     </button>
                     <button id="closeButton"
-                            class="bg-[--second-text-color] rounded-md text-[--second-bg-color] px-3 py-1 font-medium hover:bg-[--third-text-color]">
+                            class="text-mlg bg-yellow-500 rounded-md text-[--second-bg-color] px-3 py-1 font-medium hover:bg-yellow-600">
                         Close
                     </button>
                 </div>
             </div>
             <div class="flex flex-col justify-between space-y-8 items-start">
                 <div id="walkthroughIcon"
-                     class="relative h-40 w-[18.02083rem] flex items-center justify-center">
-                    <img src="" alt="Icon" class=/>
+                     class="relative h-32 w-[18.02083rem] flex items-center justify-center">
+                    <img src="" alt="Icon" class=/ style="filter: grayscale(1);">
                 </div>
-                <p class="text-[--third-text-color] flex-grow-0 flex-shrink-0 whitespace-normal">
+                <p class="w-full text-[--first-text-color] bg-[--first-bg-color] rounded-lg  py-2 px-3 flex-grow-0 flex-shrink-0 whitespace-normal">
                 </p>
             </div>
         </div>
@@ -94,9 +94,9 @@ Home
             "{% static 'main/img/light_walkthrough_3.svg' %}"
         ];
         const pages = [
-        { text: "The <span class='font-bold text-[--first-text-color]'>top boundary</span> represents<br> <span class='font-bold text-[--first-text-color]'>transactions</span>." },
-        { text: "The <span class='font-bold text-[--first-text-color]'>bottom boundary</span> represents<br> net <span class='font-bold text-[--first-text-color]'>investment profit or loss</span>." },
-        { text: "The <span class='font-bold text-[--first-text-color]'>thickness</span> of the stream<br>represents <span class='font-bold text-[--first-text-color]'>total asset value</span>." },
+        { text: "The <span class='font-bold'>top boundary</span> represents<br> <span class='font-semibold'>transactions</span>." },
+        { text: "The <span class='font-bold'>bottom boundary</span> represents<br><span class='font-semibold'>investment profit or loss</span>." },
+        { text: "The <span class='font-bold'>thickness</span> of the stream<br>represents <span class='font-semibold'>total asset value</span>." },
         ];
 
         const isDarkTheme = () => {
