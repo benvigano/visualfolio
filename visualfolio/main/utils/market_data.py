@@ -16,7 +16,7 @@ def get_historical_prices_eur_demo_shifted():
     df = HISTORICAL_PRICES_EUR_DEMO.copy()
     last_date_in_df = pd.Timestamp(df.index.max())
     current_date = pd.Timestamp(datetime.date.today())
-    delta = current_date - last_date_in_df
+    delta = pd.Timedelta(days=(current_date - last_date_in_df).days)
     df.index = df.index + delta    
     return df
 
