@@ -485,10 +485,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
             .set_index("asset_class", drop=True)
         )
         color_map["hsl_dark_background"] = color_map["asset_class_color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 70%, 40%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 75%, 45%)"
         )
         color_map["hsl_light_background"] = color_map["asset_class_color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 96%, 66%)"
         )
 
         groups = list(filter(lambda x: x != "date", pivot.columns))
@@ -673,10 +673,10 @@ class AssetsView(LoginRequiredMixin, TemplateView):
 
         # Generate themed colors for each asset class
         asset_class_sums["hsl_dark_background"] = asset_class_sums["color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 70%, 40%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 75%, 45%)"
         )
         asset_class_sums["hsl_light_background"] = asset_class_sums["color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 96%, 66%)"
         )
 
         d = {
@@ -690,10 +690,10 @@ class AssetsView(LoginRequiredMixin, TemplateView):
 
         # Generate themed colors for each asset
         assets["hsl_dark_background"] = assets["color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 70%, 40%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 75%, 45%)"
         )
         assets["hsl_light_background"] = assets["color"].apply(
-            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 93%, 70%)"
+            lambda x: f"hsl({hex_to_hsl_components(x)[0]}, 96%, 66%)"
         )
         assets["allocation"] = (
                                        assets["tot_current_value"] / assets["tot_current_value"].sum()
@@ -960,14 +960,14 @@ class EarningsView(LoginRequiredMixin, TemplateView):
 
         demo_colors_map = {
             "light": {
-                "BestCompany INC": "hsl(204, 100%, 49%)",
+                "BestCompany INC": "hsl(204, 90%, 60%)",
                 "Subscription Blog Income": "hsl(46, 88%, 60%)",
                 "App Store Revenue": "hsl(34, 87%, 60%)",
             },
             "dark": {
-                "BestCompany INC": "hsl(204, 65%, 44%)",
-                "Subscription Blog Income": "hsl(40, 91%, 48%)",
-                "App Store Revenue": "hsl(153, 40%, 54%)",
+                "BestCompany INC": "hsl(204, 55%, 44%)",
+                "Subscription Blog Income": "hsl(40, 60%, 48%)",
+                "App Store Revenue": "hsl(153, 40%, 47%)",
             },
         }
         df["color"] = df["entity"].map(demo_colors_map[self.request.theme])

@@ -56,7 +56,7 @@ def humanize_number(value, fraction_point=1):
     return return_value
 
 
-def generate_shades(base_color, n, theme, saturation):
+def generate_shades(base_color, n, theme):
     """
     Generates n shades of the same hue (hue of base_color).
     """
@@ -65,17 +65,32 @@ def generate_shades(base_color, n, theme, saturation):
 
     # Determine brightness range based on theme
     if theme == "light":
-        brightness_range = np.linspace(0.7, 0.9, n)
+        min_brightness = 0.60
+        max_brightness = 0.75
+
     elif theme == "dark":
-        brightness_range = np.linspace(0.5, 0.7, n)
+        min_brightness = 0.3
+        max_brightness = 0.45
+
     else:
         raise ValueError("Theme must be either 'light' or 'dark'.")
 
     # Generate shades of ascending brightness
-    shades = [
-        mcolors.rgb2hex(colorsys.hsv_to_rgb(base_hue, saturation, brightness))
-        for brightness in brightness_range
-    ]
+    brightness_range = np.linspace(min_brightness, max_brightness, n)
+
+    shades = []
+    for brightness in brightness_range:
+        if theme == "dark":
+            # For darker ranges, since the lighter shades will appear most saturated,
+            # increase saturation for brighter shades
+            saturation = 1 - brightness + min_brightness -0.15  # Arbitrary correction
+        else:
+            # For lighter ranges, since the darker shades will appear most saturated,
+            # increase saturation for brighter shades
+            saturation = brightness + (1 - max_brightness)
+
+        shade = mcolors.rgb2hex(colorsys.hls_to_rgb(base_hue, brightness, saturation))
+        shades.append(shade)
 
     return shades
 
@@ -345,13 +360,11 @@ def generate_assets_donut(assets, theme, center_text, base_currency):
     assets.sort_values(["asset_class_tot_value", "tot_current_value"], inplace=True)
 
     # Generate shades to distinguish assets
-    saturation = {"dark": 0.85, "light": 0.8}
     assets["color"] = assets.groupby("asset_class")["color"].transform(
         lambda color_series: generate_shades(
             color_series.iloc[0],
             len(color_series),
             theme=theme,
-            saturation=saturation[theme],
         )
     )
 

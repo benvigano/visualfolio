@@ -3,28 +3,28 @@
         "model": "main.assetclass",
         "pk": "Decentralized Digital Assets",
         "fields": {
-            "color": "#FFCF40"
+            "color": "#F4AF25"
         }
     },
     {
         "model": "main.assetclass",
         "pk": "Fiat Currencies",
         "fields": {
-            "color": "#1893C7"
+            "color": "#1AA1F4"
         }
     },
     {
         "model": "main.assetclass",
         "pk": "Public Equity",
         "fields": {
-            "color": "#4070FF"
+            "color": "#256AF4"
         }
     },
     {
         "model": "main.assetclass",
         "pk": "Publicly Traded Funds",
         "fields": {
-            "color": "#18C793"
+            "color": "#F46D1A"
         }
     }
 ]

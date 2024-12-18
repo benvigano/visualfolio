@@ -4,7 +4,7 @@ plotly_configuration = {
     "responsive": True,
 }
 
-opacity = {"dark": 0.7, "light": 0.8}
+opacity = {"dark": 0.6, "light": 0.725}
 
 plotly_layout = {
     "light": {

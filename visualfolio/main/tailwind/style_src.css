@@ -28,10 +28,10 @@
     --red-text-free-color: hsl(var(--red-hue), 100%, 70%);
     --red-bg-color: hsl(var(--red-hue), 100%, 87%);
 
-    --accent-hue: 186;
-    --accent-saturation: 100%;
-    --first-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 50%);
-    --second-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 42%);
+    --accent-hue: 220;
+    --accent-saturation: 90%;
+    --first-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 60%);
+    --second-accent-color: hsl(var(--accent-hue), var(--accent-saturation), 55%);
 }
 
 .dark {
