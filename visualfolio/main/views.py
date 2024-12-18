@@ -398,15 +398,30 @@ class HomeView(LoginRequiredMixin, TemplateView):
         # Get user's Transactions
         transactions = Transaction.objects.filter(account__user=self.request.user)
 
-        # Calculate AccountItems' value history
-        balance_histories_df["price"] = balance_histories_df.apply(
-            lambda x: get_prices_daily(
-                instrument=x["asset"],
+        # Calculate value history from BalanceHistory
+        timespan_end = balance_histories_df["date"].max()
+        timespan_start = balance_histories_df["date"].min()
+        timespan = timespan_end - timespan_start
+
+        # Collect prices by asset
+        price_dfs = []
+        for asset in balance_histories_df['asset'].unique():
+            asset_daily_prices = get_prices_daily(
+                instrument=asset,
                 quote_currency=settings.BASE_CURRENCY["code"],
-                timespan_end=x["date"],
-            ).iloc[-1],
-            axis=1,
-        )
+                timespan_end=timespan_end,
+                timespan=timespan
+            )
+            temp_df = asset_daily_prices.reset_index().rename(columns={asset: 'price'})
+            temp_df['asset'] = asset
+            price_dfs.append(temp_df)
+
+        # Combine all price dfs
+        combined_prices_df = pd.concat(price_dfs, ignore_index=True)
+
+        # Merge
+        balance_histories_df = balance_histories_df.merge(combined_prices_df, on=['date', 'asset'], how='left')
+
         balance_histories_df["value"] = (
                 balance_histories_df["price"] * balance_histories_df["balance"]
         )
