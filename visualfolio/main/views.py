@@ -52,21 +52,30 @@ class DemoLoginView(View):
 
     def get(self, request, *args, **kwargs):
         User = get_user_model()
+        
+        # Check if the credentials have already been set (ex: in case of prefetch/prelaod)
+        if not request.session.get("demo_username", False):
 
-        # Generate username and name
-        username, name = generate_realistic_user()
-
-        # Ensure the username is unique
-        while User.objects.filter(username=username).exists():
+            # Generate username and name
             username, name = generate_realistic_user()
 
-        # Generate a random password
-        password = User.objects.make_random_password()
+            # Ensure the username is unique
+            while User.objects.filter(username=username).exists():
+                username, name = generate_realistic_user()
+                
+            # Generate a random password
+            password = User.objects.make_random_password()
 
-        # Store credentials in the session
-        request.session["demo_username"] = username
-        request.session["demo_password"] = password
-        request.session["demo_name"] = name
+            # Store credentials in the session
+            request.session["demo_username"] = username
+            request.session["demo_password"] = password
+            request.session["demo_name"] = name
+            
+        else:
+            # Read session credentials
+            username = request.session["demo_username"]
+            name = request.session["demo_name"]
+            password = request.session["demo_password"]
 
         # Render the login form with pre-filled credentials
         return render(
@@ -98,7 +107,7 @@ class DemoLoginView(View):
         # Verify that the POST data matches the stored credentials
         if username != username_post or password != password_post:
             # Credentials do not match; possible tampering
-            messages.error(request, "Invalid credentials provided.")
+            messages.error(request, "Session expired or invalid. Please try again.")
             return redirect("demo_login")
 
         if User.objects.filter(username=username).exists():
