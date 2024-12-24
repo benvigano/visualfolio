@@ -100,6 +100,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
     df["date"] = pd.to_datetime(df["date"])
 
     main_color = {"light": "#6b6b6b", "dark": "rgb(255,255,255)"}
+    secondary_color = {"light":  "rgb(200,200,200)", "dark": "rgb(128,128,128)"}
 
     # Calculate y-axis range
     y_range = (
@@ -245,14 +246,24 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
         hovermode="x",
         margin=dict(l=20, r=20, t=20, b=30),
         xaxis=dict(
+            # Hide all lines
             zeroline=False,
-            zerolinewidth=1,
             showgrid=False,
+
+            # Vertical hover axis
             showspikes=True,
             spikemode="across",
             spikethickness=1,
             spikedash="dash",
             spikecolor="gray",
+
+            # Date ticks
+            ticks="inside",
+            ticklen=10,
+            tickwidth=1,
+            tickcolor=secondary_color[theme],
+            showline=False,
+            linewidth=1
         ),
         yaxis=dict(
             range=y_range,
@@ -279,6 +290,8 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
 def generate_relative_streamgraph(df, asset_class_sums, theme):
     asset_class_sums.set_index("asset_class", inplace=True)
     df.set_index("date", inplace=True)
+
+    secondary_color = {"light":  "rgb(200,200,200)", "dark": "rgb(128,128,128)"}
 
     # Normalize data to achieve relative stream
     df_normalized = df.div(df.sum(axis=1), axis=0) * 100
@@ -335,6 +348,14 @@ def generate_relative_streamgraph(df, asset_class_sums, theme):
             spikedash="dash",
             spikecolor="gray",
             spikesnap="cursor",
+
+            # Date ticks
+            ticks="inside",
+            ticklen=10,
+            tickwidth=1,
+            tickcolor=secondary_color[theme],
+            showline=False,
+            linewidth=1
         ),
         showlegend=False,
         yaxis=dict(
