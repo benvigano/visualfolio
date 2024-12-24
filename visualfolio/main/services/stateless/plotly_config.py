@@ -26,7 +26,7 @@ plotly_layout = {
     },
     "dark": {
         "font": {
-            "color": "rgb(200,200,200)",
+            "color": "rgb(255,255,255)",
             "family": "Inter, sans-serif",
         },
         "paper_bgcolor": "rgba(0,0,0,0)",
@@ -37,7 +37,7 @@ plotly_layout = {
             "bordercolor": "rgba(0,0,0,0)",
             "font": {
                 "family": "Inter, sans-serif",
-                "color": "rgb(200,200,200)",
+                "color": "rgb(255,255,255)",
             },
         },
     },

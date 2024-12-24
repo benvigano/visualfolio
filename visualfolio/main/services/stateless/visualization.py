@@ -99,7 +99,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
     # Convert dates to datetime format
     df["date"] = pd.to_datetime(df["date"])
 
-    main_color = {"light": "#6b6b6b", "dark": "#acacac"}
+    main_color = {"light": "#6b6b6b", "dark": "rgb(255,255,255)"}
 
     # Calculate y-axis range
     y_range = (
