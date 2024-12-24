@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Variables
 # -----------------------------------------------------------------------------
-ENV_FILE = Path('/etc/visualfolio_env')
+ENV_FILE = Path('/etc/gunicorn_demo.env')
 REQUIRED_VARIABLES = [
     "VISUALFOLIO_SECRET_KEY",
     "VISUALFOLIO_DEBUG",
