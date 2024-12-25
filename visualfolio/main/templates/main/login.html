@@ -17,7 +17,7 @@
 
                // Function to set cookie value
                function setCookie(name, value) {
-                  document.cookie = `${name}=${value}; path=/`;
+                  document.cookie = `${name}=${value}; path=/; domain=.visualfol.io; Secure; SameSite=Strict`;
                }
 
                const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
