@@ -41,10 +41,10 @@ Home
 </div>
 <div id="walkthroughPopup"
      class="opacity-0 transition-opacity duration-300 ease-in-out fixed bottom-3 right-16 flex items-end justify-end hidden">
-    <div class="bg-[--second-bg-color] rounded-2xl border-4 border-[--mid-bg-color] p-4 relative">
+    <div class="h-[21rem] bg-[--second-bg-color] rounded-2xl border-4 border-[--mid-bg-color] p-4 relative">
         <div id="walkthroughContent">
 
-            <div class="flex justify-between items-center space-x-1 mb-8">
+            <div class="flex justify-between items-center space-x-1">
                 <div class="flex space-x-0.5 items-center">
                     <svg class="w-5 h-5 text-[--second-text-color]"
                          aria-hidden="true"
@@ -70,9 +70,9 @@ Home
                     </button>
                 </div>
             </div>
-            <div class="flex flex-col justify-between space-y-8 items-start">
+            <div class="flex flex-col justify-between space-y-4 items-start w-80">
                 <div id="walkthroughIcon"
-                     class="relative h-32 w-[18.02083rem] flex items-center justify-center">
+                     class="relative h-44 w-80 mt-4 flex items-center justify-center">
                     <img src="" alt="Icon" class=/ style="filter: grayscale(1);">
                 </div>
                 <p class="w-full text-[--first-text-color] bg-[--first-bg-color] rounded-lg  py-2 px-3 flex-grow-0 flex-shrink-0 whitespace-normal">
@@ -101,9 +101,10 @@ Home
             "{% static 'main/img/light_walkthrough_3.svg' %}"
         ];
         const pages = [
-        { text: "The <span class='font-bold'>top boundary</span> represents<br> <span class='font-bold'>transactions</span>." },
-        { text: "The <span class='font-bold'>bottom boundary</span> represents<br><span class='font-bold'>investment profit or loss</span>." },
-        { text: "The <span class='font-bold'>thickness</span> of the stream<br>represents <span class='font-bold'>total asset value</span>." },
+        { text: "The Home page <span class='font-bold'>Streamgraph</span> is a specialized visualization designed to display total asset value over time, <span class='font-bold'>visually isolating fluctations due to earnings/expenses</span> from <span class='font-bold'>fluctations due to changes in asset value</span>."},
+        { text: "The <span class='font-bold'>top boundary</span> reflects<br> <span class='font-bold'>transactions</span>." },
+        { text: "The <span class='font-bold'>bottom boundary</span> reflects<br><span class='font-bold'>investment profit or loss</span>." },
+        { text: "The <span class='font-bold'>thickness</span> of the stream<br>reflects <span class='font-bold'>total asset value</span>." },
         ];
 
         const isDarkTheme = () => {
@@ -132,12 +133,19 @@ Home
         const updateContent = () => {
             const page = pages[currentPage];
             const themeIcons = getThemeIcons();
-
-            iconContainer.querySelector("img").src = themeIcons[currentPage];
-            iconContainer.querySelector("img").alt = `Icon ${currentPage + 1}`;
+        
+            if (currentPage === 0) {
+                iconContainer.style.display = "none";
+            } else {
+                iconContainer.style.display = "flex";
+                const imgElement = iconContainer.querySelector("img");
+                imgElement.src = themeIcons[currentPage - 1];
+                imgElement.alt = `Icon ${currentPage - 1}`;
+            }
+        
             content.querySelector("p").innerHTML = page.text;
-            content.querySelector("span").innerHTML = `[${currentPage + 1}/3]`;
-
+            content.querySelector("span").innerHTML = `[${currentPage + 1}/4]`;
+        
             nextButton.classList.toggle("hidden", currentPage === pages.length - 1);
             closeButton.classList.toggle("hidden", currentPage !== pages.length - 1);
         };
