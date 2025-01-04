@@ -276,6 +276,7 @@ def generate_streamgraph(df, theme, base_currency, color_map, last_group_name):
         legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="left", x=0),
         legend_itemclick=False,  # Disable single-click interactivity
         legend_itemdoubleclick=False,  # Disable double-click interactivity
+        legend_traceorder="normal"
     )
 
     graph_div = plot(
