@@ -33,7 +33,7 @@ from main.services.stateless.visualization import (
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
-from .models import Transaction, Account, AccountItem, Asset, Trade, BalanceHistory
+from .models import Transaction, Account, AccountItem, Asset, Trade, BalanceHistory, AssetClass
 
 
 class CustomErrorView(View):
@@ -505,11 +505,25 @@ class HomeView(LoginRequiredMixin, TemplateView):
         # Set transacitonal asset (or asset class) as first to improve chart readability
         if grouping_field == "asset":
             first_group = settings.BASE_CURRENCY["code"]
-            groups = [first_group] + list(filter(lambda x: x != first_group, groups))
+            other_groups = list(filter(lambda x: x != first_group, groups))
+            groups = [first_group] + other_groups
 
         elif grouping_field == "asset_class":
             first_group = "Fiat Currencies"
-            groups = [first_group] + list(filter(lambda x: x != first_group, groups))
+            other_groups = list(filter(lambda x: x != first_group, groups))
+            
+            # Sort the remaining asset classes by ascending volatility to improve plot readability
+            volatility_mapping = {
+                asset_class.name: asset_class.volatility_index
+                for asset_class in AssetClass.objects.filter(name__in=other_groups)
+            }
+
+            other_groups = sorted(
+                other_groups,
+                key=lambda group: volatility_mapping.get(group)
+            )
+            
+            groups = [first_group] + other_groups
 
         else:
             first_group = groups[0]

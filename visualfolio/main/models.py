@@ -16,6 +16,7 @@ from .constants import COUNTRY_CHOICES
 class AssetClass(models.Model):
     name = models.CharField(max_length=63, primary_key=True)
     color = models.CharField(max_length=7)
+    volatility_index = models.FloatField()
 
 
 class Asset(models.Model):
