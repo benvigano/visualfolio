@@ -1,5 +1,5 @@
 > [!NOTE]
-> While a [preview](https://demo.visualfol.io/demo-login/) is already available online for demonstration purposes, Visualfolio is in an early stage of development and is not ready for real-world use.
+> While a preview is already [available](https://visualfol.io/demo-login/) for demonstration purposes, Visualfolio is in an early stage of development and is not ready for real-world use.
 
 <br><br>
 
