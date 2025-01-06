@@ -1,0 +1,130 @@
+erDiagram
+
+    %% -------------------------
+    %% ENTITY: AssetClass
+    %% -------------------------
+    ASSET_CLASS {
+        Char(63) name PK
+        Char(7) color
+        Float volatility_index
+    }
+
+    %% -------------------------
+    %% ENTITY: Asset
+    %% -------------------------
+    ASSET {
+        Char(15) code PK
+        Char(127) name
+        Char(7) symbol
+        Boolean is_liquid
+        %% symbol is nullable
+        %% FK to AssetClass(name)
+    }
+
+    %% -------------------------
+    %% ENTITY: CustomUser (extends AbstractUser)
+    %%   Represented here for completeness
+    %% -------------------------
+    CUSTOM_USER {
+        Int id PK
+        DateTime last_update
+        DateTime last_full_refresh
+        %% plus AbstractUser fields
+    }
+
+    %% -------------------------
+    %% ENTITY: Account
+    %% -------------------------
+    ACCOUNT {
+        Int id PK
+        Char(255) institution_name
+        Char(255) country
+        UUID nordigen_code
+        Char(7) color
+        %% FK to CustomUser(id)
+        %% unique(institution_name, user)
+    }
+
+    %% -------------------------
+    %% ENTITY: AccountItem
+    %% -------------------------
+    ACCOUNT_ITEM {
+        Int id PK
+        Float balance
+        %% FK to Account(id)
+        %% FK to Asset(code)
+        %% unique(account, asset)
+    }
+
+    %% -------------------------
+    %% ENTITY: Transaction
+    %% -------------------------
+    TRANSACTION {
+        Int id PK
+        Char(255) entity
+        Float amount
+        DateTime datetime
+        Char(31) category
+        %% amount cannot be zero
+        %% FK to Account(id)
+        %% FK to Asset(code)
+    }
+
+    %% -------------------------
+    %% ENTITY: Trade
+    %% -------------------------
+    TRADE {
+        Int id PK
+        Float amount
+        DateTime datetime
+        %% amount cannot be zero
+        %% FK to Account(id)
+        %% FK to Asset(code) (trade_asset)
+        %% FK to Asset(code) (counter_asset)
+    }
+
+    %% -------------------------
+    %% ENTITY: BalanceHistory
+    %% -------------------------
+    BALANCE_HISTORY {
+        Int id PK
+        Date date
+        Float balance
+        %% FK to AccountItem(id)
+        %% unique(account_item, date)
+        %% ordering: (account_item, date)
+    }
+
+    %% -------------------------
+    %% RELATIONSHIPS
+    %% -------------------------
+
+    %% AssetClass (1) -- (N) Asset
+    ASSET_CLASS ||--o{ ASSET : "1 - n"
+
+    %% CustomUser (1) -- (N) Account
+    CUSTOM_USER ||--o{ ACCOUNT : "1 - n"
+
+    %% Account (1) -- (N) AccountItem
+    ACCOUNT ||--o{ ACCOUNT_ITEM : "1 - n"
+
+    %% Asset (1) -- (N) AccountItem
+    ASSET ||--o{ ACCOUNT_ITEM : "1 - n"
+
+    %% Account (1) -- (N) Transaction
+    ACCOUNT ||--o{ TRANSACTION : "1 - n"
+
+    %% Asset (1) -- (N) Transaction
+    ASSET ||--o{ TRANSACTION : "1 - n"
+
+    %% Account (1) -- (N) Trade
+    ACCOUNT ||--o{ TRADE : "1 - n"
+
+    %% Asset (1) -- (N) Trade (trade_asset)
+    ASSET ||--o{ TRADE : "1 - n (trade_asset)"
+
+    %% Asset (1) -- (N) Trade (counter_asset)
+    ASSET ||--o{ TRADE : "1 - n (counter_asset)"
+
+    %% AccountItem (1) -- (N) BalanceHistory
+    ACCOUNT_ITEM ||--o{ BALANCE_HISTORY : "1 - n"
