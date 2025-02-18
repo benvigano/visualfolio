@@ -25,7 +25,7 @@
 ## Pages
 
 ### Streamgraph
-The Home page Streamgraph is a specialized visualization designed to display total asset value over time, **visually isolating fluctuations due to earnings/expenses** from **fluctuations due to changes in asset value.**
+The Home page Streamgraph is a specialized wealth visualization designed to **visually separate earnings/expenses** and **changes in asset value.**
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/9418f0e2-85d4-4601-a480-def221e0c183" alt="Home page screen capture" style="width: 900px; height: auto;">
