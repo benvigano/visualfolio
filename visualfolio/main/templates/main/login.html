@@ -86,7 +86,7 @@
                                 {% if messages %}
                                     {% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}
                                 {% endif %}
-                                <form class="space-y-6" action="{% url 'demo_login' %}" method="post">
+                                <form class="space-y-6" action="{% url 'login' %}" method="post">
                                     {% csrf_token %}
                                     <div>
                                         <input type="text"
@@ -94,7 +94,6 @@
                                                id="username"
                                                placeholder="username"
                                                value="{{ username }}"
-                                               readonly
                                                class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div>
@@ -103,7 +102,6 @@
                                                id="password"
                                                placeholder="password"
                                                value="{{ password }}"
-                                               readonly
                                                class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div class="flex items-center justify-between">

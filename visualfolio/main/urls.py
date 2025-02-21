@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    DemoLoginView,
+    LoginView,
     HomeView,
     AssetsView,
     AccountsView,
@@ -9,7 +9,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('demo-login/', DemoLoginView.as_view(), name='demo_login'),
+    path('login/', LoginView.as_view(), name='login'),
     path('home/', HomeView.as_view(), name='home'),
     path('assets/', AssetsView.as_view(), name='assets'),
     path('accounts/', AccountsView.as_view(), name='accounts'),
