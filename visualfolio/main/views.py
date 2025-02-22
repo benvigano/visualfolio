@@ -87,6 +87,24 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Get valid range dates
+        valid_range_start, valid_range_end = BalanceHistory.get_valid_range_dates(self.request.user)
+        
+        # Check if we have enough data points
+        has_enough_data = (
+            valid_range_start is not None 
+            and valid_range_end is not None 
+            and valid_range_start != valid_range_end
+        )
+
+        if not has_enough_data:
+            context["has_enough_data"] = False
+            context["total_asset_value"] = 0
+            context["liquid_asset_value"] = 0
+            context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+            context["graph"] = ""
+            return context
+
         # Get latest balances
         accounts_items = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
@@ -307,6 +325,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context["total_asset_value"] = total_asset_value
         context["liquid_asset_value"] = liquid_asset_value
         context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+        context["has_enough_data"] = True
 
         return context
 
@@ -318,7 +337,26 @@ class AssetsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get balance histories
+        # Get valid range dates
+        valid_range_start, valid_range_end = BalanceHistory.get_valid_range_dates(self.request.user)
+        
+        # Check if we have enough data points (same as HomeView)
+        has_enough_data = (
+            valid_range_start is not None 
+            and valid_range_end is not None 
+            and valid_range_start != valid_range_end
+        )
+
+        if not has_enough_data:
+            context["has_enough_data"] = False
+            context["donut"] = ""
+            context["assets"] = []
+            context["asset_classes"] = []
+            context["relative_streamgraph"] = ""
+            context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+            return context
+
+        # Get latest balances
         balance_histories = BalanceHistory.get_valid_range_records(
             self.request.user
         ).values(
@@ -483,6 +521,7 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             pivot, asset_class_sums, self.request.theme
         )
         context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+        context["has_enough_data"] = True
 
         return context
 
@@ -493,6 +532,17 @@ class AccountsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Check if we have any valid balance history records
+        has_data = BalanceHistory.get_latest_valid_balances(self.request.user).exists()
+
+        if not has_data:
+            context["has_data"] = False
+            context["accounts_donut"] = ""
+            context["accounts_country_donut"] = ""
+            context["accounts_table"] = []
+            context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+            return context
 
         def theme_account_color(hex_color, s_change, l_change):
             """
@@ -650,6 +700,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         context["accounts_country_donut"] = accounts_country_donut
         context["accounts_table"] = account_sums.to_dict("records")
         context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+        context["has_data"] = True
 
         return context
 
@@ -723,6 +774,14 @@ class EarningsView(LoginRequiredMixin, TemplateView):
         # Convert transactions to DataFrame
         data = transactions.values("datetime", "entity", "amount")
         df = pd.DataFrame(data)
+
+        # Check if we have enough data points (at least 2 transactions)
+        if len(df) < 2:
+            context["graph"] = ""
+            context["earnings_sources"] = []
+            context["base_currency"] = settings.BASE_CURRENCY["symbol"]
+            context["has_enough_data"] = False
+            return context
 
         # Generate colors for each unique entity
         unique_entities = df["entity"].unique()
@@ -811,5 +870,6 @@ class EarningsView(LoginRequiredMixin, TemplateView):
             grouped_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
         )
         context["base_currency"] = settings.BASE_CURRENCY["symbol"]
-
+        context["has_enough_data"] = True
+        
         return context

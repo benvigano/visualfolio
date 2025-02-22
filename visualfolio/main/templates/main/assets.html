@@ -5,6 +5,8 @@ Assets
 {% block content %}
 {% load humanize %}
 <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Assets</h1>
+
+{% if has_enough_data %}
 <div class="flex w-full justify-between space-x-8">
     <!-- Asset Classes Table -->
     <div class="flex flex-col w-1/2 space-y-8">
@@ -160,4 +162,7 @@ Assets
       background-color: var(--bg-color-dark);
     }
 </style>
+{% else %}
+    {% include "main/components/no_data.html" with message="Add some balance history records to see your assets analysis." %}
+{% endif %}
 {% endblock content %}

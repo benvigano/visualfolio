@@ -6,6 +6,7 @@ Home
 {% load humanize %}
 {% load static %}
 <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Home</h1>
+{% if has_enough_data %}
 <div class="flex flex-col space-y-6">
     <div class="flex justify-between items-end">
         <h2 class="hidden lg:block font-medium text-[--first-text-color] -mb-1 mr-6">Streamgraph</h2>
@@ -26,6 +27,9 @@ Home
     </div>
     <div class="h-[500px] bg-[--second-bg-color] border border-[--border-color] rounded-xl">{{ graph|safe }}</div>
 </div>
+{% else %}
+    {% include "main/components/no_data.html" with message="Add some balance history records to see your assets streamgraph." %}
+{% endif %}
 <div id="triggerIcon"
      class="fixed bottom-3 right-3 bg-[--first-accent-color] hover:bg-[--second-accent-color] p-1 rounded-full cursor-pointer z-50 flex items-center justify-center">
     <svg class="w-8 h-8 text-white"

@@ -5,6 +5,7 @@
 {% block content %}
     {% load humanize %}
     <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Accounts</h1>
+    {% if has_data %}
     <div class="flex w-full justify-between space-x-8">
         <div class="w-3/5 flex-grow">
             <!-- Accounts Table -->
@@ -92,4 +93,7 @@
           background-color: var(--bg-color-dark);
         }
     </style>
+    {% else %}
+        {% include "main/components/no_data.html" with message="Add some balance history records to see your accounts analysis." %}
+    {% endif %}
 {% endblock content %}

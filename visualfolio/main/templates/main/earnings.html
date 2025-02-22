@@ -4,6 +4,8 @@
 {% load humanize %}
 {% load custom_filters %}
 <h1 class="font-display text-2xl text-[--first-text-color] mt-4 mb-6">Earnings</h1>
+
+{% if has_enough_data %}
 <div class="flex flex-col space-y-8 mt-4">
 
     <!-- Barplot -->
@@ -161,4 +163,7 @@
       background-color: var(--bg-color);
     }
 </style>
+{% else %}
+    {% include "main/components/no_data.html" with message="Add some transactions with positive amounts to see your earnings analysis." %}
+{% endif %}
 {% endblock content %}

@@ -5,6 +5,7 @@ Transactions
 {% block content %}
 <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Transactions</h1>
 <!-- Filters -->
+{% if transactions %}
 <div class="mb-4 flex items-center space-x-4">
     <!-- Entity search -->
     <div class="flex-1">
@@ -254,7 +255,11 @@ Transactions
         </table>
     </div>
 </div>
+{% else %}
+    {% include 'main/components/no_data.html' %}
+{% endif %}
 <!-- JavaScript for filtering -->
+{% if transactions %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const entitySearchInput = document.getElementById('entity-search');
@@ -565,4 +570,5 @@ Transactions
         -moz-appearance: textfield;
     }
 </style>
+{% endif %}
 {% endblock content %}
