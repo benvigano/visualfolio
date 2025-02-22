@@ -46,17 +46,6 @@ erDiagram
     }
 
     %% -------------------------
-    %% ENTITY: AccountItem
-    %% -------------------------
-    ACCOUNT_ITEM {
-        Int id PK
-        Float balance
-        %% FK to Account(id)
-        %% FK to Asset(code)
-        %% unique(account, asset)
-    }
-
-    %% -------------------------
     %% ENTITY: Transaction
     %% -------------------------
     TRANSACTION {
@@ -90,9 +79,10 @@ erDiagram
         Int id PK
         Date date
         Float balance
-        %% FK to AccountItem(id)
-        %% unique(account_item, date)
-        %% ordering: (account_item, date)
+        %% FK to Account(id)
+        %% FK to Asset(code)
+        %% unique(account, asset, date)
+        %% ordering: (account, asset, date)
     }
 
     %% -------------------------
@@ -104,12 +94,6 @@ erDiagram
 
     %% CustomUser (1) -- (N) Account
     CUSTOM_USER ||--o{ ACCOUNT : "1 - n"
-
-    %% Account (1) -- (N) AccountItem
-    ACCOUNT ||--o{ ACCOUNT_ITEM : "1 - n"
-
-    %% Asset (1) -- (N) AccountItem
-    ASSET ||--o{ ACCOUNT_ITEM : "1 - n"
 
     %% Account (1) -- (N) Transaction
     ACCOUNT ||--o{ TRANSACTION : "1 - n"
@@ -126,5 +110,9 @@ erDiagram
     %% Asset (1) -- (N) Trade (counter_asset)
     ASSET ||--o{ TRADE : "1 - n (counter_asset)"
 
-    %% AccountItem (1) -- (N) BalanceHistory
-    ACCOUNT_ITEM ||--o{ BALANCE_HISTORY : "1 - n"
+    %% Account (1) -- (N) BalanceHistory
+    ACCOUNT ||--o{ BALANCE_HISTORY : "1 - n"
+
+    %% Asset (1) -- (N) BalanceHistory
+    ASSET ||--o{ BALANCE_HISTORY : "1 - n"
+    

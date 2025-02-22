@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, ValidationError
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Count
 
 
 from .constants import COUNTRY_CHOICES
@@ -28,7 +29,7 @@ class Asset(models.Model):
 
 
 '''
-<< User models - Base >>
+<< User models >>
 '''
 
 class CustomUser(AbstractUser):
@@ -48,51 +49,7 @@ class Account(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['institution_name', 'user'], name='unique_institution_name_user')
         ]
-    
 
-class AccountItem(models.Model):
-    id = models.AutoField(primary_key=True)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
-    balance = models.FloatField(
-        validators=[MinValueValidator(0.0)],
-        default=0.0
-    )
-        
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['account', 'asset'], name='unique_account_asset_user')
-        ]
-        
-    @classmethod
-    def update_balance(cls, account, asset, amount):
-        """
-        If the AccountItem doesn't exist, it's created (balance set to 0).
-        """
-        with transaction.atomic():
-            account_item, created = cls.objects.get_or_create(
-                account=account,
-                asset=asset,
-                defaults={'balance': 0.0}
-            )
-            account_item.balance += amount
-            account_item.full_clean()
-            account_item.save()
-            return account_item
-
-    @classmethod
-    def get_balance(cls, account, asset):
-        """
-        If the AccountItem doesn't exist, returns 0.
-        """
-        try:
-            return cls.objects.get(
-                account=account,
-                asset=asset
-            ).balance
-        except cls.DoesNotExist:
-            return 0.0
-        
 
 class Transaction(models.Model):
     def validate_transaction_amount(value):
@@ -120,19 +77,91 @@ class Trade(models.Model):
     counter = models.ForeignKey(Asset, on_delete=models.PROTECT, related_name='counter_asset')
     datetime = models.DateTimeField()
     
-    
-'''
-<< User models - Derived >>
-'''
 
 class BalanceHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    account_item = models.ForeignKey(AccountItem, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
     date = models.DateField()
     balance = models.FloatField(validators=[MinValueValidator(0.0)])
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['account_item', 'date'], name='unique_accountitem_date')
+            models.UniqueConstraint(fields=['account', 'asset', 'date'], name='unique_account_asset_date')
         ]
-        ordering = ['account_item', 'date']
+        ordering = ['account', 'asset', 'date']
+
+    @classmethod
+    def get_valid_range_dates(cls, user):
+        """
+        Returns a tuple (start_date, end_date) representing the latest continuous period
+        where all account-asset combinations have records.
+        Returns (None, None) if no valid range exists.
+        """
+        # Get count of ALL account-asset combinations for the user
+        n_all_combinations = cls.objects.filter(
+            account__user=user
+        ).values('account', 'asset').distinct().count()
+        
+        if not n_all_combinations:
+            return None, None
+        
+        # Get all dates where every combination has a record, ordered by date ascending
+        complete_dates = cls.objects.filter(
+            account__user=user
+        ).values('date').annotate(
+            combination_count=Count('id', distinct=True, filter=models.Q(account__user=user))
+        ).filter(
+            combination_count=n_all_combinations
+        ).order_by('date').values_list('date', flat=True)
+        
+        complete_dates = list(complete_dates)
+
+        if not complete_dates:
+            return None, None
+        
+        # Set the end of the valid range to the latest complete date
+        valid_range_end = complete_dates[-1]
+        valid_range_start = valid_range_end
+        
+        # Find the first discontinuity going backwards
+        for i in range(len(complete_dates) - 1, 0, -1):
+            if (complete_dates[i] - complete_dates[i - 1]).days > 1:  # Gap found
+                break
+            # Keep moving start date back as long as dates are continuous
+            valid_range_start = complete_dates[i - 1]
+        
+        return valid_range_start, valid_range_end
+
+    @classmethod
+    def get_valid_range_records(cls, user):
+        """
+        Returns BalanceHistory records within the valid date range for a user.
+        A valid range is defined as the latest continuous period where all account-asset combinations have records.
+        """
+        valid_range_start, valid_range_end = cls.get_valid_range_dates(user)
+        
+        if valid_range_start is None:
+            return cls.objects.none()
+            
+        return cls.objects.filter(
+            account__user=user,
+            date__gte=valid_range_start,
+            date__lte=valid_range_end
+        )
+
+    @classmethod
+    def get_latest_valid_balances(cls, user):
+        """
+        Returns the latest BalanceHistory records within the valid date range for a user.
+        Returns only one record per account-asset combination, representing the most recent balance.
+        """
+        valid_range_start, valid_range_end = cls.get_valid_range_dates(user)
+        
+        if valid_range_start is None:
+            return cls.objects.none()
+        
+        return cls.objects.filter(
+            account__user=user,
+            date=valid_range_end
+        )
