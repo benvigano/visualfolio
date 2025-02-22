@@ -52,7 +52,7 @@ class DemoLoginView(View):
 
     def get(self, request, *args, **kwargs):
         User = get_user_model()
-        
+
         # Check if the credentials have already been set (ex: in case of prefetch/prelaod)
         if not request.session.get("demo_username", False):
 
@@ -62,7 +62,7 @@ class DemoLoginView(View):
             # Ensure the username is unique
             while User.objects.filter(username=username).exists():
                 username, name = generate_realistic_user()
-                
+
             # Generate a random password
             password = User.objects.make_random_password()
 
@@ -70,7 +70,7 @@ class DemoLoginView(View):
             request.session["demo_username"] = username
             request.session["demo_password"] = password
             request.session["demo_name"] = name
-            
+
         else:
             # Read session credentials
             username = request.session["demo_username"]
@@ -360,7 +360,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
         # Get user's AccountItems
         accounts_items = (
-            AccountItem.objects.filter(account__user=self.request.user)
+            BalanceHistory.get_latest_valid_balances(self.request.user)
             .select_related("asset__asset_class")
             .values("account", "asset", "balance", "asset__is_liquid")
         )
@@ -387,22 +387,22 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
         # Get users BalanceHistories
         balance_histories = BalanceHistory.objects.filter(
-            account__user=self.request.user
+            account_item__account__user=self.request.user
         ).values(
-            "account__institution_name",
-            "asset",
-            "asset__asset_class__name",
-            "asset__asset_class__color",
+            "account_item__account__institution_name",
+            "account_item__asset",
+            "account_item__asset__asset_class__name",
+            "account_item__asset__asset_class__color",
             "balance",
             "date",
         )
         balance_histories_df = pd.DataFrame(list(balance_histories))
         balance_histories_df.rename(
             columns={
-                "account__institution_name": "account",
-                "asset": "asset",
-                "asset__asset_class__name": "asset_class",
-                "asset__asset_class__color": "asset_class_color",
+                "account_item__account__institution_name": "account",
+                "account_item__asset": "asset",
+                "account_item__asset__asset_class__name": "asset_class",
+                "account_item__asset__asset_class__color": "asset_class_color",
             },
             inplace=True,
         )
@@ -589,22 +589,28 @@ class AssetsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get user's BalanceHistory
-        balance_histories = BalanceHistory.objects.filter(
-            account__user=self.request.user
+        # Get balance histories
+        balance_histories = BalanceHistory.get_valid_range_records(
+            self.request.user
         ).values(
-            "account",
-            "asset",
-            "asset__asset_class__name",
-            "asset__asset_class__color",
+            "account__institution_name",
+            "account__color",
+            "account__country",
             "balance",
+            "asset",
             "date",
+            "asset__asset_class__name",
+            "asset__asset_class__color"
         )
+
         balance_histories_df = pd.DataFrame(list(balance_histories))
         balance_histories_df.rename(
             columns={
+                "account__institution_name": "account",
+                "account__color": "account_color",
+                "account__country": "account_country",
                 "asset__asset_class__name": "asset_class",
-                "asset__asset_class__color": "asset_class_color",
+                "asset__asset_class__color": "asset_class_color"
             },
             inplace=True,
         )
@@ -648,20 +654,23 @@ class AssetsView(LoginRequiredMixin, TemplateView):
 
         # Get user's AccountItems
         accounts_items = (
-            AccountItem.objects.filter(account__user=self.request.user)
-            .select_related("asset__asset_class")
-            .values(
-                "account",
-                "asset",
-                "asset__name",
-                "balance",
-                "asset__asset_class__name",
-                "asset__asset_class__color",
-            )
+            BalanceHistory.get_latest_valid_balances(self.request.user)
+        ).values(
+            "account__institution_name",
+            "account__color",
+            "account__country",
+            "balance",
+            "asset",
+            "asset__name",
+            "asset__asset_class__name",
+            "asset__asset_class__color"
         )
         accounts_items_df = pd.DataFrame(list(accounts_items))
         accounts_items_df.rename(
             columns={
+                "account__institution_name": "account",
+                "account__color": "account_color",
+                "account__country": "account_country",
                 "asset__asset_class__name": "asset_class",
                 "asset__asset_class__color": "color",
                 "asset__name": "name",
@@ -766,8 +775,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             return f"hsl({h}, {s}%, {l}%)"
 
         # Get user's AccountItems
-        accounts_items = AccountItem.objects.filter(
-            account__user=self.request.user
+        accounts_items = (
+            BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
             "account__institution_name",
             "account__color",

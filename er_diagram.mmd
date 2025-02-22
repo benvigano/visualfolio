@@ -46,17 +46,6 @@ erDiagram
     }
 
     %% -------------------------
-    %% ENTITY: AccountItem
-    %% -------------------------
-    ACCOUNT_ITEM {
-        Int id PK
-        Float balance
-        %% FK to Account(id)
-        %% FK to Asset(code)
-        %% unique(account, asset)
-    }
-
-    %% -------------------------
     %% ENTITY: Transaction
     %% -------------------------
     TRANSACTION {
@@ -105,12 +94,6 @@ erDiagram
 
     %% CustomUser (1) -- (N) Account
     CUSTOM_USER ||--o{ ACCOUNT : "1 - n"
-
-    %% Account (1) -- (N) AccountItem
-    ACCOUNT ||--o{ ACCOUNT_ITEM : "1 - n"
-
-    %% Asset (1) -- (N) AccountItem
-    ASSET ||--o{ ACCOUNT_ITEM : "1 - n"
 
     %% Account (1) -- (N) Transaction
     ACCOUNT ||--o{ TRANSACTION : "1 - n"
