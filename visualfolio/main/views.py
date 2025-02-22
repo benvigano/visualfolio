@@ -32,7 +32,7 @@ from main.services.stateless.visualization import (
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
-from .models import Transaction, Account, AccountItem, Asset, Trade, BalanceHistory, AssetClass
+from .models import Transaction, Account, Asset, Trade, BalanceHistory, AssetClass
 
 
 class CustomErrorView(View):
@@ -87,7 +87,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get user's AccountItems
+        # Get latest balances
         accounts_items = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
             .select_related("asset__asset_class")
@@ -95,7 +95,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         )
         accounts_items_df = pd.DataFrame(list(accounts_items))
 
-        # Calculate AccountItems' current values
+        # Calculate current values
         accounts_items_df["current_price"] = accounts_items_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
@@ -381,7 +381,7 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             index="date", columns=grouping_field, values="value"
         ).reset_index()
 
-        # Get user's AccountItems
+        # Get latest balances
         accounts_items = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
@@ -503,7 +503,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             l = max(0, min(100, l + (l_change * 100)))
             return f"hsl({h}, {s}%, {l}%)"
 
-        # Get user's AccountItems
+        # Get latest balances
         accounts_items = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
@@ -523,7 +523,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             inplace=True,
         )
 
-        # Calculate current value of AccountItems
+        # Calculate current balances values
         accounts_items_df["current_price"] = accounts_items_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
