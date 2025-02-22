@@ -48,12 +48,6 @@ Visualfolio aims to provide a unified view of all the user's assets across all t
     <img src="https://github.com/user-attachments/assets/4050fc33-b15a-4f51-afe0-5ee923a073b4" alt="Earnings page screen capture" style="width: 900px; height: auto;">
 </p>
 
-## ER diagram
-![Mermaid](https://img.shields.io/badge/diagrammer-Mermaid-pink?logo=mermaid&logoColor=white)
-<p align="center">
-    <img src="https://github.com/user-attachments/assets/5c83f579-0631-4deb-8648-9ddc9415040b" alt="ER Diagram" style="width: 700px; height: auto;">
-</p>
-
 ## Roadmap
 - Bank data API integration ([GoCardless](https://gocardless.com/bank-account-data/), [Salt Edge](https://www.saltedge.com/))
 - Manual account setup for accounts not supported by the bank data API (single or batch-upload for transactions)

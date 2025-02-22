@@ -127,12 +127,13 @@ class Trade(models.Model):
 
 class BalanceHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    account_item = models.ForeignKey(AccountItem, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
     date = models.DateField()
     balance = models.FloatField(validators=[MinValueValidator(0.0)])
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['account_item', 'date'], name='unique_accountitem_date')
+            models.UniqueConstraint(fields=['account', 'asset', 'date'], name='unique_account_asset_date')
         ]
-        ordering = ['account_item', 'date']
+        ordering = ['account', 'asset', 'date']

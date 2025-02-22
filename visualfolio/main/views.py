@@ -283,7 +283,6 @@ class DemoLoginView(View):
         Trade.objects.bulk_create(trade_instances)
 
         # Generate balance history
-
         account_items = AccountItem.objects.filter(account__user=user)
         all_transactions = Transaction.objects.filter(account__user=user)
 
@@ -321,17 +320,25 @@ class DemoLoginView(View):
                 # Collect BalanceHistory objects and track (item, date) pairs
                 for date, balance in balance_history.items():
                     all_balance_history_objs.append(
-                        BalanceHistory(account_item=item, date=date, balance=balance)
+                        BalanceHistory(
+                            account=item.account,
+                            asset=item.asset,
+                            date=date,
+                            balance=balance
+                        )
                     )
-                    items_and_dates.add((item.id, date))
+                    items_and_dates.add((item.account_id, item.asset_id, date))
 
             # Prepare filters for bulk deletion
-            account_item_ids = {item_id for item_id, _ in items_and_dates}
-            dates = {date for _, date in items_and_dates}
+            account_ids = {account_id for account_id, _, _ in items_and_dates}
+            asset_ids = {asset_id for _, asset_id, _ in items_and_dates}
+            dates = {date for _, _, date in items_and_dates}
 
-            # Bulk delete existing BalanceHistory entries for the items and dates
+            # Bulk delete existing BalanceHistory entries
             BalanceHistory.objects.filter(
-                account_item_id__in=account_item_ids, date__in=dates
+                account_id__in=account_ids,
+                asset_id__in=asset_ids,
+                date__in=dates
             ).delete()
 
             # Bulk create all BalanceHistory records
@@ -380,22 +387,22 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
         # Get users BalanceHistories
         balance_histories = BalanceHistory.objects.filter(
-            account_item__account__user=self.request.user
+            account__user=self.request.user
         ).values(
-            "account_item__account__institution_name",
-            "account_item__asset",
-            "account_item__asset__asset_class__name",
-            "account_item__asset__asset_class__color",
+            "account__institution_name",
+            "asset",
+            "asset__asset_class__name",
+            "asset__asset_class__color",
             "balance",
             "date",
         )
         balance_histories_df = pd.DataFrame(list(balance_histories))
         balance_histories_df.rename(
             columns={
-                "account_item__account__institution_name": "account",
-                "account_item__asset": "asset",
-                "account_item__asset__asset_class__name": "asset_class",
-                "account_item__asset__asset_class__color": "asset_class_color",
+                "account__institution_name": "account",
+                "asset": "asset",
+                "asset__asset_class__name": "asset_class",
+                "asset__asset_class__color": "asset_class_color",
             },
             inplace=True,
         )
@@ -584,22 +591,20 @@ class AssetsView(LoginRequiredMixin, TemplateView):
 
         # Get user's BalanceHistory
         balance_histories = BalanceHistory.objects.filter(
-            account_item__account__user=self.request.user
+            account__user=self.request.user
         ).values(
-            "account_item__account",
-            "account_item__asset",
-            "account_item__asset__asset_class__name",
-            "account_item__asset__asset_class__color",
+            "account",
+            "asset",
+            "asset__asset_class__name",
+            "asset__asset_class__color",
             "balance",
             "date",
         )
         balance_histories_df = pd.DataFrame(list(balance_histories))
         balance_histories_df.rename(
             columns={
-                "account_item__account": "account",
-                "account_item__asset": "asset",
-                "account_item__asset__asset_class__name": "asset_class",
-                "account_item__asset__asset_class__color": "asset_class_color",
+                "asset__asset_class__name": "asset_class",
+                "asset__asset_class__color": "asset_class_color",
             },
             inplace=True,
         )
