@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.crypto import get_random_string
 from django.shortcuts import render
 from django.views import View
 from django.contrib.auth import login
@@ -64,7 +65,7 @@ class DemoLoginView(View):
                 username, name = generate_realistic_user()
 
             # Generate a random password
-            password = User.objects.make_random_password()
+            password = get_random_string(length=12)
 
             # Store credentials in the session
             request.session["demo_username"] = username
@@ -115,7 +116,7 @@ class DemoLoginView(View):
                 username, name = generate_realistic_user()
                 if not User.objects.filter(username=username).exists():
                     break
-            password = User.objects.make_random_password()
+            password = get_random_string(length=12)
             request.session["demo_username"] = username
             request.session["demo_password"] = password
             request.session["demo_name"] = name
