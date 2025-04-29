@@ -1,6 +1,6 @@
 [
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 1,
             "asset": "ETH",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 1,
             "asset": "BTC",
@@ -16,7 +16,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 3,
             "asset": "AAPL.US",
@@ -24,7 +24,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 3,
             "asset": "NVDA.US",
@@ -32,7 +32,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 1,
             "asset": "USD",
@@ -40,7 +40,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 1,
             "asset": "SPY.US",
@@ -48,7 +48,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 3,
             "asset": "CHF",
@@ -56,7 +56,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 3,
             "asset": "DIA.US",
@@ -64,7 +64,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 1,
             "asset": "NFLX.US",
@@ -72,7 +72,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 2,
             "asset": "EUR",
@@ -80,7 +80,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 5,
             "asset": "EUR",
@@ -88,7 +88,7 @@
         }
     },
     {
-        "model": "main.accountitem",
+        "model": "main.balancehistory",
         "fields": {
             "account": 4,
             "asset": "EUR",

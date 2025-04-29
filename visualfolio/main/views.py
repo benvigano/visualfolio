@@ -34,7 +34,7 @@ from main.services.stateless.visualization import (
 )
 from main.services.stateless.calculation import BalanceCalculationService
 
-from .models import Transaction, Account, AccountItem, Asset, Trade, BalanceHistory, AssetClass
+from .models import Transaction, Account, Asset, Trade, BalanceHistory, AssetClass
 
 
 class CustomErrorView(View):
@@ -168,25 +168,22 @@ class DemoLoginView(View):
             except Asset.DoesNotExist as exc:
                 raise Exception(f"Asset with code '{code}' not supported") from exc
 
-        # Load AccountItem data
-        account_items_data = load_json_data("demo_accountitems.json")
-        account_item_instances = []
+        # Load initial balances data
+        initial_balances_data = load_json_data("demo_initial_balances.json")
+        latest_balances = []
 
-        for entry in account_items_data:
+        for entry in initial_balances_data:
             fields = entry.get("fields", {})
             old_account_pk = fields.get("account")
             account = account_mapping.get(old_account_pk)
             asset = get_asset_instance(fields.get("asset"))
 
             if account and asset:
-                account_item_instances.append(
-                    AccountItem(
-                        account=account, asset=asset, balance=fields.get("balance")
-                    )
-                )
-
-        # Bulk create AccountItem instances
-        AccountItem.objects.bulk_create(account_item_instances)
+                latest_balances.append({
+                    'account': account,
+                    'asset': asset,
+                    'balance': fields.get("balance")
+                })
 
         # Load Transaction data
         transactions_data = load_json_data("demo_transactions.json")
@@ -284,31 +281,51 @@ class DemoLoginView(View):
         Trade.objects.bulk_create(trade_instances)
 
         # Generate balance history
-        account_items = AccountItem.objects.filter(account__user=user)
         all_transactions = Transaction.objects.filter(account__user=user)
-
-        # Generate account item map
-        account_item_map = {(ai.account_id, ai.asset_id): ai for ai in account_items}
-
-        # Prepare AccountItems and group transactions
-        transactions_by_item = {account_item: [] for account_item in account_items}
-        for txn in all_transactions:
-            account_item = account_item_map.get((txn.account_id, txn.asset_id))
-            transactions_by_item.setdefault(account_item, []).append(txn)
 
         # Initialize the balance calculation service
         balance_calculator = BalanceCalculationService()
 
         start_date = min(
-            [t.datetime.date() for txns in transactions_by_item.values() for t in txns]
+            [t.datetime.date() for t in all_transactions]
         )
 
         with transaction.atomic():
             all_balance_history_objs = []
             items_and_dates = set()
 
-            for item, transactions in transactions_by_item.items():
-                current_balance = item.balance
+            # Create latest balance history records
+            current_date = datetime.datetime.now().date()
+            for balance_data in latest_balances:
+                all_balance_history_objs.append(
+                    BalanceHistory(
+                        account=balance_data['account'],
+                        asset=balance_data['asset'],
+                        date=current_date,
+                        balance=balance_data['balance']
+                    )
+                )
+                items_and_dates.add((balance_data['account'].id, balance_data['asset'].code, current_date))
+
+            # Group transactions by account-asset
+            transactions_by_item = {}
+            for balance_data in latest_balances:
+                key = (balance_data['account'], balance_data['asset'])
+                transactions_by_item[key] = []
+
+            for txn in all_transactions:
+                key = (txn.account, txn.asset)
+                if key not in transactions_by_item:
+                    raise Exception(f"Found transaction for account-asset pair that has no initial balance: {key}")
+                transactions_by_item[key].append(txn)
+
+            # Generate balance history for each account-asset pair
+            for (account, asset), transactions in transactions_by_item.items():
+                
+                current_balance = next(
+                    (b['balance'] for b in latest_balances 
+                     if b['account'] == account and b['asset'] == asset)
+                )
 
                 # Generate balance history
                 balance_history = balance_calculator.generate_balance_history(
@@ -320,25 +337,26 @@ class DemoLoginView(View):
 
                 # Collect BalanceHistory objects and track (item, date) pairs
                 for date, balance in balance_history.items():
-                    all_balance_history_objs.append(
-                        BalanceHistory(
-                            account=item.account,
-                            asset=item.asset,
-                            date=date,
-                            balance=balance
+                    if date != current_date:  # Current date already created
+                        all_balance_history_objs.append(
+                            BalanceHistory(
+                                account=account,
+                                asset=asset,
+                                date=date,
+                                balance=balance
+                            )
                         )
-                    )
-                    items_and_dates.add((item.account_id, item.asset_id, date))
+                        items_and_dates.add((account.id, asset.code, date))
 
             # Prepare filters for bulk deletion
             account_ids = {account_id for account_id, _, _ in items_and_dates}
-            asset_ids = {asset_id for _, asset_id, _ in items_and_dates}
+            asset_codes = {asset_code for _, asset_code, _ in items_and_dates}
             dates = {date for _, _, date in items_and_dates}
 
             # Bulk delete existing BalanceHistory entries
             BalanceHistory.objects.filter(
                 account_id__in=account_ids,
-                asset_id__in=asset_ids,
+                asset__code__in=asset_codes,
                 date__in=dates
             ).delete()
 
@@ -359,16 +377,16 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get user's AccountItems
-        accounts_items = (
+        # Get latest balances
+        latest_balances = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
             .select_related("asset__asset_class")
             .values("account", "asset", "balance", "asset__is_liquid")
         )
-        accounts_items_df = pd.DataFrame(list(accounts_items))
+        balances_df = pd.DataFrame(list(latest_balances))
 
-        # Calculate AccountItems' current values
-        accounts_items_df["current_price"] = accounts_items_df.apply(
+        # Calculate current values
+        balances_df["current_price"] = balances_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
                 settings.BASE_CURRENCY["code"],
@@ -376,39 +394,39 @@ class HomeView(LoginRequiredMixin, TemplateView):
             ),
             axis=1,
         )
-        accounts_items_df["current_value"] = (
-                accounts_items_df["current_price"] * accounts_items_df["balance"]
+        balances_df["current_value"] = (
+                balances_df["current_price"] * balances_df["balance"]
         )
 
         # Calculate totals
-        total_asset_value = accounts_items_df["current_value"].sum()
-        liquid_asset_value = accounts_items_df[accounts_items_df["asset__is_liquid"]][
+        total_asset_value = balances_df["current_value"].sum()
+        liquid_asset_value = balances_df[balances_df["asset__is_liquid"]][
             "current_value"
         ].sum()
 
         # Get users BalanceHistories
-        balance_histories = BalanceHistory.objects.filter(
-            account_item__account__user=self.request.user
+        balance_histories = BalanceHistory.get_valid_range_records(
+            self.request.user
         ).values(
-            "account_item__account__institution_name",
-            "account_item__asset",
-            "account_item__asset__asset_class__name",
-            "account_item__asset__asset_class__color",
+            "account__institution_name",
+            "asset",
+            "asset__asset_class__name",
+            "asset__asset_class__color",
             "balance",
             "date",
         )
         balance_histories_df = pd.DataFrame(list(balance_histories))
         balance_histories_df.rename(
             columns={
-                "account_item__account__institution_name": "account",
-                "account_item__asset": "asset",
-                "account_item__asset__asset_class__name": "asset_class",
-                "account_item__asset__asset_class__color": "asset_class_color",
+                "account__institution_name": "account",
+                "asset": "asset",
+                "asset__asset_class__name": "asset_class",
+                "asset__asset_class__color": "asset_class_color",
             },
             inplace=True,
         )
 
-        balance_histories_df["account_item"] = (
+        balance_histories_df["account_asset"] = (
                 balance_histories_df["account"] + " - " + balance_histories_df["asset"]
         )
 
@@ -653,7 +671,7 @@ class AssetsView(LoginRequiredMixin, TemplateView):
             index="date", columns=grouping_field, values="value"
         ).reset_index()
 
-        # Get user's AccountItems
+        # Get user's latest balances
         accounts_items = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
@@ -775,8 +793,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             l = max(0, min(100, l + (l_change * 100)))
             return f"hsl({h}, {s}%, {l}%)"
 
-        # Get user's AccountItems
-        accounts_items = (
+        # Get user's latest balances
+        latest_balances = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
             "account__institution_name",
@@ -785,8 +803,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "balance",
             "asset",
         )
-        accounts_items_df = pd.DataFrame(list(accounts_items))
-        accounts_items_df.rename(
+        balances_df = pd.DataFrame(list(latest_balances))
+        balances_df.rename(
             columns={
                 "account__institution_name": "account",
                 "account__color": "account_color",
@@ -795,8 +813,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             inplace=True,
         )
 
-        # Calculate current value of AccountItems
-        accounts_items_df["current_price"] = accounts_items_df.apply(
+        # Calculate current value of balances
+        balances_df["current_price"] = balances_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
                 settings.BASE_CURRENCY["code"],
@@ -804,15 +822,15 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             ),
             axis=1,
         )
-        accounts_items_df["current_value"] = (
-                accounts_items_df["current_price"] * accounts_items_df["balance"]
+        balances_df["current_value"] = (
+                balances_df["current_price"] * balances_df["balance"]
         )
 
         # Style colors based on theme
-        accounts_items_df["hsl_dark_background"] = accounts_items_df[
+        balances_df["hsl_dark_background"] = balances_df[
             "account_color"
         ].apply(lambda x: theme_account_color(x, -0.05, -0.10))
-        accounts_items_df["hsl_light_background"] = accounts_items_df[
+        balances_df["hsl_light_background"] = balances_df[
             "account_color"
         ].apply(lambda x: theme_account_color(x, 0.05, 0.10))
 
@@ -823,7 +841,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "hsl_dark_background": ("hsl_dark_background", "first"),
             "hsl_light_background": ("hsl_light_background", "first"),
         }
-        account_sums = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        account_sums = balances_df.groupby(["account"]).agg(**d).reset_index()
         account_sums["account_value_perc"] = (
                                                      account_sums["account_tot_value"] / account_sums[
                                                  "account_tot_value"].sum()
@@ -893,7 +911,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         # Sort by volume
         account_sums.sort_values("account_tot_value", ascending=False, inplace=True)
 
-        accounts_items_df.drop(
+        balances_df.drop(
             columns=["balance", "asset", "current_price"], inplace=True
         )
 
@@ -904,7 +922,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "hsl_light_background": ("hsl_light_background", "first"),
             "country": ("account_country", "first"),
         }
-        accounts_df = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        accounts_df = balances_df.groupby(["account"]).agg(**d).reset_index()
         accounts_donut = generate_accounts_donut(
             accounts_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
         )
@@ -912,7 +930,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         # Generate account countries donut plot
         d = {"account_total_value": ("current_value", "sum")}
         accounts_country_df = (
-            accounts_items_df.groupby(["account_country"]).agg(**d).reset_index()
+            balances_df.groupby(["account_country"]).agg(**d).reset_index()
         )
         accounts_country_donut = generate_accounts_country_donut(
             accounts_country_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
