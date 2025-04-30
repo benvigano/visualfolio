@@ -106,15 +106,15 @@ class HomeView(LoginRequiredMixin, TemplateView):
             return context
 
         # Get latest balances
-        accounts_items = (
+        latest_balances = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
             .select_related("asset__asset_class")
             .values("account", "asset", "balance", "asset__is_liquid")
         )
-        accounts_items_df = pd.DataFrame(list(accounts_items))
+        balances_df = pd.DataFrame(list(latest_balances))
 
         # Calculate current values
-        accounts_items_df["current_price"] = accounts_items_df.apply(
+        balances_df["current_price"] = balances_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
                 settings.BASE_CURRENCY["code"],
@@ -122,13 +122,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
             ),
             axis=1,
         )
-        accounts_items_df["current_value"] = (
-                accounts_items_df["current_price"] * accounts_items_df["balance"]
+        balances_df["current_value"] = (
+                balances_df["current_price"] * balances_df["balance"]
         )
 
         # Calculate totals
-        total_asset_value = accounts_items_df["current_value"].sum()
-        liquid_asset_value = accounts_items_df[accounts_items_df["asset__is_liquid"]][
+        total_asset_value = balances_df["current_value"].sum()
+        liquid_asset_value = balances_df[balances_df["asset__is_liquid"]][
             "current_value"
         ].sum()
 
@@ -154,7 +154,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
             inplace=True,
         )
 
-        balance_histories_df["account_item"] = (
+        balance_histories_df["account_asset"] = (
                 balance_histories_df["account"] + " - " + balance_histories_df["asset"]
         )
 
@@ -553,8 +553,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             l = max(0, min(100, l + (l_change * 100)))
             return f"hsl({h}, {s}%, {l}%)"
 
-        # Get latest balances
-        accounts_items = (
+        # Get user's latest balances
+        latest_balances = (
             BalanceHistory.get_latest_valid_balances(self.request.user)
         ).values(
             "account__institution_name",
@@ -563,8 +563,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "balance",
             "asset",
         )
-        accounts_items_df = pd.DataFrame(list(accounts_items))
-        accounts_items_df.rename(
+        balances_df = pd.DataFrame(list(latest_balances))
+        balances_df.rename(
             columns={
                 "account__institution_name": "account",
                 "account__color": "account_color",
@@ -573,8 +573,8 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             inplace=True,
         )
 
-        # Calculate current balances values
-        accounts_items_df["current_price"] = accounts_items_df.apply(
+        # Calculate current value of balances
+        balances_df["current_price"] = balances_df.apply(
             lambda x: get_prices_daily(
                 x["asset"],
                 settings.BASE_CURRENCY["code"],
@@ -582,15 +582,15 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             ),
             axis=1,
         )
-        accounts_items_df["current_value"] = (
-                accounts_items_df["current_price"] * accounts_items_df["balance"]
+        balances_df["current_value"] = (
+                balances_df["current_price"] * balances_df["balance"]
         )
 
         # Style colors based on theme
-        accounts_items_df["hsl_dark_background"] = accounts_items_df[
+        balances_df["hsl_dark_background"] = balances_df[
             "account_color"
         ].apply(lambda x: theme_account_color(x, -0.05, -0.10))
-        accounts_items_df["hsl_light_background"] = accounts_items_df[
+        balances_df["hsl_light_background"] = balances_df[
             "account_color"
         ].apply(lambda x: theme_account_color(x, 0.05, 0.10))
 
@@ -601,7 +601,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "hsl_dark_background": ("hsl_dark_background", "first"),
             "hsl_light_background": ("hsl_light_background", "first"),
         }
-        account_sums = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        account_sums = balances_df.groupby(["account"]).agg(**d).reset_index()
         account_sums["account_value_perc"] = (
                                                      account_sums["account_tot_value"] / account_sums[
                                                  "account_tot_value"].sum()
@@ -671,7 +671,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         # Sort by volume
         account_sums.sort_values("account_tot_value", ascending=False, inplace=True)
 
-        accounts_items_df.drop(
+        balances_df.drop(
             columns=["balance", "asset", "current_price"], inplace=True
         )
 
@@ -682,7 +682,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
             "hsl_light_background": ("hsl_light_background", "first"),
             "country": ("account_country", "first"),
         }
-        accounts_df = accounts_items_df.groupby(["account"]).agg(**d).reset_index()
+        accounts_df = balances_df.groupby(["account"]).agg(**d).reset_index()
         accounts_donut = generate_accounts_donut(
             accounts_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
         )
@@ -690,7 +690,7 @@ class AccountsView(LoginRequiredMixin, TemplateView):
         # Generate account countries donut plot
         d = {"account_total_value": ("current_value", "sum")}
         accounts_country_df = (
-            accounts_items_df.groupby(["account_country"]).agg(**d).reset_index()
+            balances_df.groupby(["account_country"]).agg(**d).reset_index()
         )
         accounts_country_donut = generate_accounts_country_donut(
             accounts_country_df, self.request.theme, settings.BASE_CURRENCY["symbol"]
@@ -871,5 +871,5 @@ class EarningsView(LoginRequiredMixin, TemplateView):
         )
         context["base_currency"] = settings.BASE_CURRENCY["symbol"]
         context["has_enough_data"] = True
-        
+
         return context
