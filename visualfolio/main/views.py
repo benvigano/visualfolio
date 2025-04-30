@@ -1028,8 +1028,8 @@ class EarningsView(LoginRequiredMixin, TemplateView):
         }
         df["color"] = df["entity"].map(demo_colors_map[self.request.theme])
 
-        # Ensure 'datetime' is a datetime object
-        df["datetime"] = pd.to_datetime(df["datetime"])
+        # Ensure 'datetime' is a datetime object and convert to UTC
+        df["datetime"] = pd.to_datetime(df["datetime"]).dt.tz_localize(None)
 
         # Extract the month from datetime
         df["month"] = df["datetime"].dt.to_period("M").dt.to_timestamp()
