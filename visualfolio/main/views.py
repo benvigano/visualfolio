@@ -224,7 +224,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
                     )
 
                 for txn in transactions_by_date[current_date]:
-                    asset_price = assets_price_mapping[txn.asset][0]
+                    asset_price = assets_price_mapping[txn.asset].iloc[0]
                     transaction_value = asset_price * txn.amount
                     value += transaction_value
 
