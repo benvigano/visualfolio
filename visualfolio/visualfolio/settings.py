@@ -1,22 +1,106 @@
 import os
 import datetime
 from pathlib import Path
+from typing import Any, Optional, Sequence, TypedDict, Dict
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+class EnvVarConfig(TypedDict, total=False):
+    required: bool
+    default: Any
+    coerce_type: type
+    allowed_values: Sequence[Any]
+    required_in_modes: Sequence[str]
+
+
+def get_env_var(name: str, config: EnvVarConfig, current_mode: Optional[str] = None) -> Any:
+    """
+    Get an environment variable with validation and type coercion based on configuration.
+    
+    Args:
+        name: Name of the environment variable
+        config: Configuration dictionary containing validation rules
+        current_mode: Current deployment mode for conditional requirements
+    """
+    value = os.environ.get(name)
+    
+    # Check if variable is required in current mode
+    is_required = config.get('required', False)
+    if not is_required and current_mode:
+        required_in_modes = config.get('required_in_modes', [])
+        is_required = current_mode in required_in_modes
+    
+    if value is None:
+        if is_required:
+            raise ValueError(f"Environment variable {name} is required in {current_mode or 'all'} mode(s) but not set.")
+        return config.get('default')
+    
+    coerce_type = config.get('coerce_type')
+    
+    # Handle boolean type specially
+    if coerce_type == bool:
+        value = value.lower()
+        if value not in ('true', 'false'):
+            raise ValueError(f"Environment variable {name} must be 'true' or 'false', got '{value}'")
+        return value == "true"
+    
+    # Handle other type coercion
+    if coerce_type:
+        try:
+            value = coerce_type(value)
+        except (ValueError, TypeError) as e:
+            raise ValueError(f"Environment variable {name} could not be converted to {coerce_type.__name__}: {e}")
+    
+    # Validate against allowed values if specified
+    allowed_values = config.get('allowed_values')
+    if allowed_values is not None and value not in allowed_values:
+        allowed_str = ", ".join(str(v) for v in allowed_values)
+        raise ValueError(f"Environment variable {name} must be one of: {allowed_str}, got '{value}'")
+    
+    return value
+
+
+# Environment Variable Configuration
+# -----------------------------------------------------------------------------
+ENV_CONFIG: Dict[str, EnvVarConfig] = {
+    "VISUALFOLIO_ENVIRONMENT": {
+        "required": True,
+        "allowed_values": ('local', 'cloud')
+    },
+    "VISUALFOLIO_SECRET_KEY": {
+        "required": True
+    },
+    "VISUALFOLIO_DEBUG": {
+        "default": "false",
+        "coerce_type": bool
+    },
+    "VISUALFOLIO_ALLOWED_HOSTS": {
+        "required": True
+    },
+    "DB_NAME": {
         "required_in_modes": ['cloud']
     },
+    "DB_USER": {
+        "required_in_modes": ['cloud']
+    },
+    "DB_PASSWORD": {
+        "required_in_modes": ['cloud']
+    },
+    "DB_HOST": {
+        "required_in_modes": ['cloud']
+    },
+    "DB_PORT": {
+        "required_in_modes": ['cloud'],
+        "coerce_type": int
+    }
+}
+
+
 # Variables
 # -----------------------------------------------------------------------------
 ENV_FILE = Path('/etc/gunicorn_visualfolio.env')
-REQUIRED_VARIABLES = [
-    "VISUALFOLIO_SECRET_KEY",
-    "VISUALFOLIO_DEBUG",
-    "VISUALFOLIO_MODE",
-    "VISUALFOLIO_ALLOWED_HOSTS",
-]
 
 if ENV_FILE.exists():
     with ENV_FILE.open('r') as f:
@@ -25,12 +109,15 @@ if ENV_FILE.exists():
             if not line or line.startswith('#'):
                 continue
             key, value = line.split('=', 1)
-            # Setdefault doesn't overwrite vars already set in the environment
             os.environ.setdefault(key, value)
 
-SECRET_KEY = os.environ.get("VISUALFOLIO_SECRET_KEY")
-DEBUG = os.environ.get("VISUALFOLIO_DEBUG").lower() == "true"
-ALLOWED_HOSTS = os.environ.get("VISUALFOLIO_ALLOWED_HOSTS").split(",")
+
+# Core Settings
+# -----------------------------------------------------------------------------
+DEPLOYMENT_MODE = get_env_var("VISUALFOLIO_ENVIRONMENT", ENV_CONFIG["VISUALFOLIO_ENVIRONMENT"])
+SECRET_KEY = get_env_var("VISUALFOLIO_SECRET_KEY", ENV_CONFIG["VISUALFOLIO_SECRET_KEY"], DEPLOYMENT_MODE)
+DEBUG = get_env_var("VISUALFOLIO_DEBUG", ENV_CONFIG["VISUALFOLIO_DEBUG"], DEPLOYMENT_MODE)
+ALLOWED_HOSTS = get_env_var("VISUALFOLIO_ALLOWED_HOSTS", ENV_CONFIG["VISUALFOLIO_ALLOWED_HOSTS"], DEPLOYMENT_MODE).split(",")
 
 
 # Customization
@@ -84,12 +171,26 @@ WSGI_APPLICATION = 'visualfolio.wsgi.application'
 
 # Database
 # -----------------------------------------------------------------------------
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEPLOYMENT_MODE == 'cloud':
+    db_config = {
+        key.replace('DB_', '').lower(): get_env_var(key, ENV_CONFIG[key], DEPLOYMENT_MODE)
+        for key in ENV_CONFIG
+        if key.startswith('DB_')
     }
-}
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            **db_config
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -151,7 +252,7 @@ LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 STATIC_ROOT.mkdir(exist_ok=True)
 
-
+# Base logging configuration for all environments
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -160,13 +261,34 @@ LOGGING = {
             'format': '[{asctime}] {levelname} {name} {message}',
             'style': '{',
         },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        }
     },
     'handlers': {
-        'console_debug': {
+        'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
+            'formatter': 'simple',
         },
+    },
+    'loggers': {
+        '': {  # Root logger
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
+
+# Specific logging settings for different environments
+if DEPLOYMENT_MODE == 'local':
+    # Local deployment uses file logging
+    if DEBUG:
+        LOGGING['handlers']['console']['formatter'] = 'verbose'
+        LOGGING['loggers']['']['level'] = 'DEBUG'
+    
+    # Add file handlers for local deployment
+    LOGGING['handlers'].update({
         'file_info': {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'visualfolio_info.log',
@@ -182,23 +304,37 @@ LOGGING = {
             'level': 'ERROR',
             'maxBytes': 5 * 1024 * 1024,  # 5 MB
             'backupCount': 5,
-        },
-    },
-    'loggers': {
+        }
+    })
+    
+    # Add file handlers to logger configurations
+    LOGGING['loggers'].update({
         'visualfolio': {
-            'handlers': ['console_debug', 'file_info', 'file_error'] if DEBUG else ['file_info', 'file_error'],
+            'handlers': ['console', 'file_info', 'file_error'],
             'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'visualfolio_scheduled_tasks': {
-            'handlers': ['console_debug', 'file_info', 'file_error'] if DEBUG else ['file_info', 'file_error'],
+            'handlers': ['console', 'file_info', 'file_error'],
             'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'django': {
-            'handlers': ['file_error'],
+            'handlers': ['console', 'file_error'],
             'level': 'ERROR',
             'propagate': False,
         },
-    },
-}
+    })
+elif DEPLOYMENT_MODE == 'cloud':
+    # Cloud deployment only logs to console (picked up by AWS CloudWatch)
+    pass
+else:
+    raise ValueError(f"Invalid DEPLOYMENT_MODE: {DEPLOYMENT_MODE}. Must be 'local' or 'cloud'.")
+
+# AWS Lambda and API Gateway specific settings
+if DEPLOYMENT_MODE == 'cloud':
+    # Session configuration
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+    
+    # Static files handling for Lambda
+    STATICFILES_DIRS = []
