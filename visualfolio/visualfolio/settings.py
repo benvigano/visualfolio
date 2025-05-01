@@ -6,6 +6,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+        "required_in_modes": ['cloud']
+    },
 # Variables
 # -----------------------------------------------------------------------------
 ENV_FILE = Path('/etc/gunicorn_visualfolio.env')
