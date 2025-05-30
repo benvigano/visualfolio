@@ -3,7 +3,7 @@
 Transactions
 {% endblock title %}
 {% block content %}
-<h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Transactions</h1>
+<h1 class="font-display font-medium text-2xl text-(--first-text-color) mt-4 mb-6">Transactions</h1>
 <!-- Filters -->
 {% if transactions %}
 <div class="mb-4 flex items-center space-x-4">
@@ -13,7 +13,7 @@ Transactions
         <form class="max-w-md">
             <div class="relative">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg class="w-4 h-4 text-[--second-text-color]"
+                    <svg class="w-4 h-4 text-(--second-text-color)"
                          aria-hidden="true"
                          xmlns="http://www.w3.org/2000/svg"
                          fill="none"
@@ -24,7 +24,7 @@ Transactions
                 </div>
                 <input type="search"
                        id="entity-search"
-                       class="block w-full p-2 ps-10 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                       class="block w-full p-2 ps-10 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border border-(--border-color) focus:outline-0 focus:bg-(--third-bg-color)"
                        placeholder="Search transactions"
                        required>
             </div>
@@ -35,7 +35,7 @@ Transactions
         <div class="relative">
             <button id="dateRangeDropdownButton"
                     data-dropdown-toggle="dateRangeDropdown"
-                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    class="filter-button block w-full p-2 px-3 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border-b-2 border-transparent text-left font-medium"
                     type="button">
                 <!-- Close icon -->
                 <span class="filter-reset" id="dateRangeFilterReset">&times;</span>
@@ -49,22 +49,22 @@ Transactions
             </button>
             <!-- Dropdown menu -->
             <div id="dateRangeDropdown"
-                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color]  border border-[--border-color] rounded-lg shadow w-64 p-4">
+                 class="z-10 hidden absolute right-0 mt-2 bg-(--second-bg-color)  border border-(--border-color) rounded-lg shadow w-64 p-4">
                 <div class="flex flex-col space-y-2">
                     <div class="flex items-center">
                         <label for="start-date"
-                               class="text-xs font-medium text-[--first-text-color] mr-2 w-12">From:</label>
+                               class="text-xs font-medium text-(--first-text-color) mr-2 w-12">From:</label>
                         <input type="date"
                                id="start-date"
-                               class="w-full p-1 text-xs text-[--second-text-color] rounded-lg bg-[--third-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                               class="w-full p-1 text-xs text-(--second-text-color) rounded-lg bg-(--third-bg-color) border border-(--border-color) focus:outline-0 focus:bg-(--third-bg-color)"
                                placeholder="YYYY-MM-DD">
                     </div>
                     <div class="flex items-center">
                         <label for="end-date"
-                               class="text-xs font-medium text-[--first-text-color] mr-2 w-12">To:</label>
+                               class="text-xs font-medium text-(--first-text-color) mr-2 w-12">To:</label>
                         <input type="date"
                                id="end-date"
-                               class="w-full p-1 text-xs text-[--second-text-color] rounded-lg bg-[--third-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]"
+                               class="w-full p-1 text-xs text-(--second-text-color) rounded-lg bg-(--third-bg-color) border border-(--border-color) focus:outline-0 focus:bg-(--third-bg-color)"
                                placeholder="YYYY-MM-DD">
                     </div>
                 </div>
@@ -76,7 +76,7 @@ Transactions
         <div class="relative">
             <button id="currencyDropdownButton"
                     data-dropdown-toggle="currencyDropdown"
-                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    class="filter-button block w-full p-2 px-3 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border-b-2 border-transparent text-left font-medium"
                     type="button">
                 <!-- Close icon -->
                 <span class="filter-reset text-md" id="currencyFilterReset">&times;</span>
@@ -90,9 +90,9 @@ Transactions
             </button>
             <!-- Dropdown menu -->
             <div id="currencyDropdown"
-                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color] rounded-lg  border border-[--border-color] shadow w-36">
+                 class="z-10 hidden absolute right-0 mt-2 bg-(--second-bg-color) rounded-lg  border border-(--border-color) shadow w-36">
                 <ul id="currency-options"
-                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-(--first-text-color)"
                     aria-labelledby="currencyDropdownButton">
                     {% for asset in assets %}
                     <li>
@@ -100,10 +100,10 @@ Transactions
                             <input id="currency-{{ forloop.counter }}"
                                    type="checkbox"
                                    value="{{ asset.name }}"
-                                   class="currency-checkbox w-3 h-3 text-[var(--accent_color)] rounded focus:ring-[var(--accent_color)] transition duration-100"
+                                   class="currency-checkbox w-3 h-3 text-(var(--accent_color)) rounded focus:ring-(var(--accent_color)) transition duration-100"
                                    checked>
                             <label for="currency-{{ forloop.counter }}"
-                                   class="ml-2 text-xs font-medium text-[--first-text-color]">
+                                   class="ml-2 text-xs font-medium text-(--first-text-color)">
                                 {{ asset.name }}
                             </label>
                         </div>
@@ -118,7 +118,7 @@ Transactions
         <div class="relative">
             <button id="accountDropdownButton"
                     data-dropdown-toggle="accountDropdown"
-                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    class="filter-button block w-full p-2 px-3 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border-b-2 border-transparent text-left font-medium"
                     type="button">
                 <!-- Close icon -->
                 <span class="filter-reset" id="accountFilterReset">&times;</span>
@@ -132,9 +132,9 @@ Transactions
             </button>
             <!-- Dropdown menu -->
             <div id="accountDropdown"
-                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color] border border-[--border-color] rounded-lg shadow w-36">
+                 class="z-10 hidden absolute right-0 mt-2 bg-(--second-bg-color) border border-(--border-color) rounded-lg shadow w-36">
                 <ul id="account-options"
-                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-(--first-text-color)"
                     aria-labelledby="accountDropdownButton">
                     {% for account in accounts %}
                     <li>
@@ -142,10 +142,10 @@ Transactions
                             <input id="account-{{ forloop.counter }}"
                                    type="checkbox"
                                    value="{{ account.institution_name }}"
-                                   class="account-checkbox w-3 h-3 text-[var(--accent_color)] rounded focus:ring-[var(--accent_color)]"
+                                   class="account-checkbox w-3 h-3 text-(var(--accent_color)) rounded focus:ring-(var(--accent_color))"
                                    checked>
                             <label for="account-{{ forloop.counter }}"
-                                   class="ml-2 text-xs font-medium text-[--first-text-color]">
+                                   class="ml-2 text-xs font-medium text-(--first-text-color)">
                                 {{ account.institution_name }}
                             </label>
                         </div>
@@ -160,7 +160,7 @@ Transactions
         <div class="relative">
             <button id="transactionTypeDropdownButton"
                     data-dropdown-toggle="transactionTypeDropdown"
-                    class="filter-button block w-full p-2 px-3 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border-b-2 border-transparent text-left font-medium"
+                    class="filter-button block w-full p-2 px-3 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border-b-2 border-transparent text-left font-medium"
                     type="button">
                 <!-- Close icon -->
                 <span class="filter-reset" id="transactionTypeFilterReset">&times;</span>
@@ -174,19 +174,19 @@ Transactions
             </button>
             <!-- Dropdown menu -->
             <div id="transactionTypeDropdown"
-                 class="z-10 hidden absolute right-0 mt-2 bg-[--second-bg-color]  border border-[--border-color] rounded-lg shadow w-36">
+                 class="z-10 hidden absolute right-0 mt-2 bg-(--second-bg-color)  border border-(--border-color) rounded-lg shadow w-36">
                 <ul id="transaction-type-options"
-                    class="max-h-48 py-1 overflow-y-auto text-xs text-[--first-text-color]"
+                    class="max-h-48 py-1 overflow-y-auto text-xs text-(--first-text-color)"
                     aria-labelledby="transactionTypeDropdownButton">
                     <li>
                         <div class="flex items-center px-2 py-1">
                             <input id="transaction-type-incoming"
                                    type="checkbox"
                                    value="incoming"
-                                   class="transaction-type-checkbox w-3 h-3 text-[var(--accent_color)]  rounded focus:ring-[var(--accent_color)]"
+                                   class="transaction-type-checkbox w-3 h-3 text-(var(--accent_color))  rounded focus:ring-(var(--accent_color))"
                                    checked>
                             <label for="transaction-type-incoming"
-                                   class="ml-2 text-xs font-medium text-[--first-text-color]">Incoming</label>
+                                   class="ml-2 text-xs font-medium text-(--first-text-color)">Incoming</label>
                         </div>
                     </li>
                     <li>
@@ -194,10 +194,10 @@ Transactions
                             <input id="transaction-type-outgoing"
                                    type="checkbox"
                                    value="outgoing"
-                                   class="transaction-type-checkbox w-3 h-3 text-[var(--accent_color)]  rounded focus:ring-[var(--accent_color)]"
+                                   class="transaction-type-checkbox w-3 h-3 text-(var(--accent_color))  rounded focus:ring-(var(--accent_color))"
                                    checked>
                             <label for="transaction-type-outgoing"
-                                   class="ml-2 text-xs font-medium text-[--first-text-color]">Outgoing</label>
+                                   class="ml-2 text-xs font-medium text-(--first-text-color)">Outgoing</label>
                         </div>
                     </li>
                 </ul>
@@ -206,10 +206,10 @@ Transactions
     </div>
 </div>
 <!-- Transactions table with scrollable container -->
-<div class="relative overflow-x-auto bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+<div class="relative overflow-x-auto bg-(--second-bg-color) border border-(--border-color) rounded-xl">
     <div class="overflow-y-auto">
         <table class="w-full text-sm text-left">
-            <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+            <thead class="text-xs uppercase bg-(--third-bg-color) text-(--third-text-color)">
             <tr>
                 <!-- Define table headers -->
                 <th scope="col" class="px-6 py-3 w-1/6 text-center whitespace-nowrap">Account</th>
@@ -220,13 +220,13 @@ Transactions
             </thead>
             <tbody id="transactions-table-body">
             {% for transaction in transactions %}
-            <tr class="border-t border-[--border-color] bg-[--second-bg-color]"
+            <tr class="border-t border-(--border-color) bg-(--second-bg-color)"
                 data-entity="{{ transaction.entity|lower }}"
                 data-type="{% if transaction.amount >= 0 %}incoming{% else %}outgoing{% endif %}"
                 data-currency="{{ transaction.asset.name }}"
                 data-account="{{ transaction.account.institution_name }}"
                 data-date="{{ transaction.datetime|date:'Y-m-d' }}">
-                <td class="px-6 py-2 text-center text-[--second-text-color]"
+                <td class="px-6 py-2 text-center text-(--second-text-color)"
                     style="--bg-color-light: {{ transaction.hsl_light_background }};
                                            --text-color-light: {{ transaction.hsl_light_text }};
                                            --bg-color-dark: {{ transaction.hsl_dark_background }};
@@ -237,11 +237,11 @@ Transactions
                                         </span>
                     </div>
                 </td>
-                <td class="px-6 py-2 text-right whitespace-nowrap text-[--third-text-color]">
+                <td class="px-6 py-2 text-right whitespace-nowrap text-(--third-text-color)">
                     {{ transaction.datetime|date:"D, d M Y" }}
                 </td>
-                <td class="px-6 py-2 font-normal text-[--first-text-color]">{{ transaction.entity }}</td>
-                <td class="tabular-nums px-6 py-2 font-normal text-right {% if transaction.amount > 0 %}text-[--green-text-free-color]{% else %}text-[--first-text-color]{% endif %}">
+                <td class="px-6 py-2 font-normal text-(--first-text-color)">{{ transaction.entity }}</td>
+                <td class="tabular-nums px-6 py-2 font-normal text-right {% if transaction.amount > 0 %}text-(--green-text-free-color){% else %}text-(--first-text-color){% endif %}">
                     {% if transaction.amount >= 0 %}
                     +{{ transaction.formatted_amount }}
                     {% else %}

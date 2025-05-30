@@ -57,37 +57,37 @@
        })();
     </script>
 </head>
-<body class="flex bg-[--first-bg-color] min-h-screen select-none">
+<body class="flex bg-(--first-bg-color) min-h-screen select-none">
     <div class="desktop-only-message min-h-screen w-full relative">
         <div class="inset-0 absolute flex items-center justify-center">
-            <div class="text-[--third-text-color] rounded-xl bg-[--third-bg-color] px-3 py-2 m-12">
+            <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
                 Visualfolio is currently available only for larger screens.
             </div>
         </div>
     </div>
 <div class="wrapper flex h-full">
     <div id="sidebar"
-         class="text-sm font-normal text-[--third-text-color] fixed z-10 flex flex-col justify-between h-screen px-3 py-3 overflow-y-auto bg-[--second-bg-color] border-r border-[--border-color] w-48">
+         class="text-sm font-normal text-(--third-text-color) fixed z-10 flex flex-col justify-between h-screen px-3 py-3 overflow-y-auto bg-(--second-bg-color) border-r border-(--border-color) w-48">
         <div class="h-24">
             <div>
                 <div class="h-2"></div>
                 <div class="flex items-center ml-1 mr-2">
-                    <div class="relative flex-shrink-0 inline-flex items-center justify-center w-8 h-8 overflow-hidden rounded-full bg-[--mid-bg-color]">
-                        <span class="font-semibold text-md text-[--third-text-color]">
+                    <div class="relative flex-shrink-0 inline-flex items-center justify-center w-8 h-8 overflow-hidden rounded-full bg-(--mid-bg-color)">
+                        <span class="font-semibold text-md text-(--third-text-color)">
                            {{ user.first_name|default:''|slice:":1" }}{{ user.last_name|default:''|slice:":1" }}
                         </span>
                     </div>
-                    <span class="text-[--first-text-color] text-sm m-2">{{ user.first_name }}</span>
+                    <span class="text-(--first-text-color) text-sm m-2">{{ user.first_name }}</span>
                 </div>
                 <!-- Divider -->
                 <div class="py-5">
-                    <hr class="h-px mx-3 bg-[--border-color] border-0 rounded">
+                    <hr class="h-px mx-3 bg-(--border-color) border-0 rounded">
                 </div>
             </div>
             <ul>
                 <!-- Home Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--first-text-color] hover:bg-[--third-bg-color] {% if current_view == 'home' %} bg-[--third-bg-color]"
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'home' %} bg-(--third-bg-color)"
                        {% else %} " href="{% url 'home' %}" {% endif %} >
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
@@ -104,7 +104,7 @@
                 </li>
                 <!-- Assets Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--first-text-color] hover:bg-[--third-bg-color] {% if current_view == 'assets' %} bg-[--third-bg-color]"
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'assets' %} bg-(--third-bg-color)"
                        {% else %} " href="{% url 'assets' %}" {% endif %}>
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
@@ -124,7 +124,7 @@
                 </li>
                 <!-- Accounts Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--first-text-color] hover:bg-[--third-bg-color] {% if current_view == 'accounts' %} bg-[--third-bg-color]"
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'accounts' %} bg-(--third-bg-color)"
                        {% else %} " href="{% url 'accounts' %}" {% endif %} >
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
@@ -140,7 +140,7 @@
                 </li>
                 <!-- Transactions Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--first-text-color] hover:bg-[--third-bg-color] {% if current_view == 'transactions' %} bg-[--third-bg-color]"
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'transactions' %} bg-(--third-bg-color)"
                        {% else %} " href="{% url 'transactions' %}" {% endif %}>
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
@@ -156,7 +156,7 @@
                 </li>
                 <!-- Earnings Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--first-text-color] hover:bg-[--third-bg-color] {% if current_view == 'earnings' %} bg-[--third-bg-color]"
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'earnings' %} bg-(--third-bg-color)"
                        {% else %} " href="{% url 'earnings' %}" {% endif %} >
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
@@ -173,7 +173,7 @@
                 </li>
                 <!-- Expenses Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--disabled-text-color]">
+                    <a class="flex items-center p-2 rounded-md group text-(--disabled-text-color)">
                         <svg class="mr-2 w-4 h-4 text-current"
                              aria-hidden="true"
                              xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +189,7 @@
                 </li>
                 <!-- Trades Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--disabled-text-color]">
+                    <a class="flex items-center p-2 rounded-md group text-(--disabled-text-color)">
                         <svg class="mr-2 w-4 h-4 text-current"
                              aria-hidden="true"
                              xmlns="http://www.w3.org/2000/svg"
@@ -205,11 +205,11 @@
                 </li>
                 <!-- Divider -->
                 <div class="py-5">
-                    <hr class="h-px mx-3 bg-[--border-color] border-0 rounded">
+                    <hr class="h-px mx-3 bg-(--border-color) border-0 rounded">
                 </div>
                 <!-- Configuration Section -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-[--disabled-text-color]">
+                    <a class="flex items-center p-2 rounded-md group text-(--disabled-text-color)">
                         <svg class="mr-2 w-4 h-4 text-current"
                              aria-hidden="true"
                              xmlns="http://www.w3.org/2000/svg"
@@ -224,7 +224,7 @@
                         <span>Configuration</span> </a>
                 </li>
                 <li>
-                    <a class=" flex items-center p-2 rounded-md group text-[--disabled-text-color]">
+                    <a class=" flex items-center p-2 rounded-md group text-(--disabled-text-color)">
                         <svg class="mr-2 w-4 h-4 text-current"
                              aria-hidden="true"
                              xmlns="http://www.w3.org/2000/svg"
@@ -258,7 +258,7 @@
                 </a>
             </div>
             <a href="https://visualfol.io" target="_blank">
-                <svg class="w-3 h-3 text-[--third-text-color]" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-3 h-3 text-(--third-text-color)" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                     <path fill="CurrentColor" fill-rule="evenodd"
                           d="M5,2 C5.55228,2 6,2.44772 6,3 C6,3.55228 5.55228,4 5,4 L4,4 L4,12 L12,12 L12,11 C12,10.4477 12.4477,10 13,10 C13.5523,10 14,10.4477 14,11 L14,12 C14,13.1046 13.1046,14 12,14 L4,14 C2.89543,14 2,13.1046 2,12 L2,4 C2,2.89543 2.89543,2 4,2 L5,2 Z M15,1 L15,5.99814453 C15,6.55043453 14.5523,6.99814453 14,6.99814453 C13.4477,6.99814453 13,6.55043453 13,5.99814453 L13,4.41419 L8.71571,8.69846 C8.32519,9.08899 7.69202,9.08899 7.3015,8.69846 C6.91097,8.30794 6.91097,7.67477 7.3015,7.28425 L11.5858,3 L9.99619141,3 C9.44391141,3 8.99619141,2.55228 8.99619141,2 C8.99619141,1.44772 9.44391141,1 9.99619141,1 L15,1 Z"/>
                 </svg>
@@ -269,7 +269,7 @@
 <div class="wrapper flex-grow relative p-8 pl-56">
     <div id="spinner"
          class="fixed inset-0 flex items-center justify-center pl-52">
-        <div class="w-6 h-6 border-2 border-[--first-text-color] border-t-transparent border-b-transparent rounded-full animate-spin [animation-duration:500ms]"></div>
+        <div class="w-6 h-6 border-2 border-(--first-text-color) border-t-transparent border-b-transparent rounded-full animate-spin [animation-duration:500ms]"></div>
     </div>
     <div id="page-content" class="invisible h-full">
         {% block content %}{% endblock %}

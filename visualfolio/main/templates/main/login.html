@@ -55,15 +55,15 @@
         </script>
     </head>
     <body>
-        <body class="flex bg-[--first-bg-color] h-screen">
+        <body class="flex bg-(--first-bg-color) h-screen">
     <div class="desktop-only-message min-h-screen w-full relative">
         <div class="inset-0 absolute flex items-center justify-center">
-            <div class="text-[--third-text-color] rounded-xl bg-[--third-bg-color] px-3 py-2 m-12">
+            <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
                 Visualfolio is currently available only for larger screens.
             </div>
         </div>
     </div>
-            <div class="wrapper w-full h-full text-[--first-text-color]">
+            <div class="wrapper w-full h-full text-(--first-text-color)">
                 <section>
                     <div class="flex flex-col items-center justify-center p-10 h-screen">
                         <a href="#" class="flex items-center text-2xl font-semibold">
@@ -80,9 +80,9 @@
                                 </a>
                             </div>
                         </a>
-                        <div class="w-full bg-[--second-bg-color] rounded-xl border border-[--border-color] max-w-sm">
+                        <div class="w-full bg-(--second-bg-color) rounded-xl border border-(--border-color) max-w-sm">
                             <div class="p-8 space-y-4">
-                                <h1 class="font-display font-medium text-2xl text-[--first-text-color]">Sign in</h1>
+                                <h1 class="font-display font-medium text-2xl text-(--first-text-color)">Sign in</h1>
                                 {% if messages %}
                                     {% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}
                                 {% endif %}
@@ -94,7 +94,7 @@
                                                id="username"
                                                placeholder="username"
                                                value="{{ username }}"
-                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div>
                                         <input type="password"
@@ -102,13 +102,13 @@
                                                id="password"
                                                placeholder="password"
                                                value="{{ password }}"
-                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <a href="#"
-                                           class="text-sm transition duration-100 font-medium hover:underline text-[--first-accent-color]">Forgot password?</a>
+                                           class="text-sm transition duration-100 font-medium hover:underline text-(--first-accent-color)">Forgot password?</a>
                                         <button type="submit"
-                                                class="text-white bg-[--first-accent-color] transition duration-100 hover:bg-[--second-accent-color] focus:outline-none font-medium rounded-lg px-5 py-2 text-center">
+                                                class="text-white bg-(--first-accent-color) transition duration-100 hover:bg-(--second-accent-color) focus:outline-none font-medium rounded-lg px-5 py-2 text-center">
                                             Sign in
                                         </button>
                                     </div>

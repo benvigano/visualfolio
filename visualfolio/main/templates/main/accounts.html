@@ -4,15 +4,15 @@
 {% endblock title %}
 {% block content %}
     {% load humanize %}
-    <h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Accounts</h1>
+    <h1 class="font-display font-medium text-2xl text-(--first-text-color) mt-4 mb-6">Accounts</h1>
     {% if has_data %}
     <div class="flex w-full justify-between space-x-8">
         <div class="w-3/5 flex-grow">
             <!-- Accounts Table -->
-            <h2 class="font-medium text-[--first-text-color] mb-4">All accounts</h2>
-            <div class="relative overflow-x-auto bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+            <h2 class="font-medium text-(--first-text-color) mb-4">All accounts</h2>
+            <div class="relative overflow-x-auto bg-(--second-bg-color) border border-(--border-color) rounded-xl">
                 <table class="w-full text-sm text-left">
-                    <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+                    <thead class="text-xs uppercase bg-(--third-bg-color) text-(--third-text-color)">
                         <tr>
                             <th scope="col" class="p-2 w-0"></th>
                             <th scope="col" class="px-3 py-2">Account</th>
@@ -22,45 +22,45 @@
                     </thead>
                     <tbody id="accounts-table-body">
                         {% for account in accounts_table %}
-                            <tr class="border-t bg-[--second-bg-color] border-[--border-color]">
+                            <tr class="border-t bg-(--second-bg-color) border-(--border-color)">
                                 <td class="px-3 py-3 w-0 text-center">
                                     <span class="account-tag inline-block w-3 h-3 ml-2 rounded-full"
                                           style="--bg-color-light: {{ account.hsl_light_background }};
                                                  --bg-color-dark: {{ account.hsl_dark_background }}"></span>
                                 </td>
-                                <td class="text-mlg px-2 py-3 font-normal text-[--first-text-color]">
+                                <td class="text-mlg px-2 py-3 font-normal text-(--first-text-color)">
                                     {{ account.account }}
-                                    <div class="mt-2 text-sm font-normal text-[--third-text-color]">{{ account.account_country }}</div>
+                                    <div class="mt-2 text-sm font-normal text-(--third-text-color)">{{ account.account_country }}</div>
                                 </td>
-                                <td class="px-4 py-3 text-right font-normal text-[--first-text-color] tabular-nums">
+                                <td class="px-4 py-3 text-right font-normal text-(--first-text-color) tabular-nums">
                                     <div class="flex flex-col space-y-0.5 whitespace-nowrap">
                                         {% if account.avg_monthly_volume == 0 %}
-                                            <div class="text-xs font-normal text-[--third-text-color] whitespace-nowrap">-</div>
+                                            <div class="text-xs font-normal text-(--third-text-color) whitespace-nowrap">-</div>
                                         {% else %}
                                             {{ account.avg_monthly_volume|floatformat:"2"|intcomma }} {{ base_currency }}
                                         {% endif %}
 
                                         {% if account.avg_monthly_incoming == 0 %}
-                                            <div class="text-xxs font-medium text-[--third-text-color]">-</div>
+                                            <div class="text-xxs font-medium text-(--third-text-color)">-</div>
                                         {% else %}
-                                            <div class="text-xxs font-medium text-[--green-text-free-color] whitespace-nowrap">
+                                            <div class="text-xxs font-medium text-(--green-text-free-color) whitespace-nowrap">
                                                 (+{{ account.avg_monthly_incoming|floatformat:"2"|intcomma }} {{ base_currency }})
                                             </div>
                                         {% endif %}
 
                                         {% if account.avg_monthly_outgoing == 0 %}
-                                            <div class="text-xxs font-medium text-[--third-text-color]">-</div>
+                                            <div class="text-xxs font-medium text-(--third-text-color)">-</div>
                                         {% else %}
-                                            <div class="text-xxs font-medium text-[--red-text-free-color] whitespace-nowrap">
+                                            <div class="text-xxs font-medium text-(--red-text-free-color) whitespace-nowrap">
                                                 (-{{ account.avg_monthly_outgoing|floatformat:"2"|intcomma }} {{ base_currency }})
                                             </div>
                                         {% endif %}
                                     </div>
 
                                 </td>
-                                <td class="px-4 py-3 text-right text-[--first-text-color] tabular-nums whitespace-nowrap">
+                                <td class="px-4 py-3 text-right text-(--first-text-color) tabular-nums whitespace-nowrap">
                                     {{ account.account_tot_value|floatformat:"2"|intcomma }} {{ base_currency }}
-                                    <div class="mt-2 font-normal text-[--third-text-color]">{{ account.account_value_perc|floatformat:"2" }}%</div>
+                                    <div class="mt-2 font-normal text-(--third-text-color)">{{ account.account_value_perc|floatformat:"2" }}%</div>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -70,16 +70,16 @@
         </div>
         <div class="w-2/5 flex flex-col justify-start space-y-8">
             <div>
-            <h2 class="font-medium text-[--first-text-color] mb-4">Value allocation by account</h2>
+            <h2 class="font-medium text-(--first-text-color) mb-4">Value allocation by account</h2>
             <div id="plot-container-accounts"
-                 class="h-[210px] bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+                 class="h-[210px] bg-(--second-bg-color) border border-(--border-color) rounded-xl">
                 {{ accounts_donut|safe }}
             </div>
         </div>
         <div>
-            <h2 class="font-medium text-[--first-text-color] mb-4">Value allocation by country</h2>
+            <h2 class="font-medium text-(--first-text-color) mb-4">Value allocation by country</h2>
             <div id="plot-container-accounts-country"
-                 class="h-[210px] bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+                 class="h-[210px] bg-(--second-bg-color) border border-(--border-color) rounded-xl">
                 {{ accounts_country_donut|safe }}
             </div>
         </div>

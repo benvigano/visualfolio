@@ -3,20 +3,20 @@
 {% block content %}
 {% load humanize %}
 {% load custom_filters %}
-<h1 class="font-display text-2xl text-[--first-text-color] mt-4 mb-6">Earnings</h1>
+<h1 class="font-display text-2xl text-(--first-text-color) mt-4 mb-6">Earnings</h1>
 
 {% if has_enough_data %}
 <div class="flex flex-col space-y-8 mt-4">
 
     <!-- Barplot -->
-    <div class="flex-grow bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+    <div class="flex-grow bg-(--second-bg-color) border border-(--border-color) rounded-xl">
         <div class="w-full h-[370px]">{{ graph|safe }}</div>
     </div>
 
     <!-- Sources of earnings table -->
-    <div class="bg-[--second-bg-color] border border-[--border-color] rounded-xl relative overflow-visible">
+    <div class="bg-(--second-bg-color) border border-(--border-color) rounded-xl relative overflow-visible">
         <table class="w-full text-sm text-left">
-            <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+            <thead class="text-xs uppercase bg-(--third-bg-color) text-(--third-text-color)">
             <tr>
                 <th scope="col" class="p-2 w-0 rounded-tl-xl"></th>
                 <th scope="col" class="px-2 py-2">
@@ -34,7 +34,7 @@
                                       d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
                                       clip-rule="evenodd"/>
                             </svg>
-                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-[--mid-bg-color] text-[--second-text-color] text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
+                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-(--mid-bg-color) text-(--second-text-color) text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
                                 Total earnings generated from this source over all time.
                             </div>
                         </div>
@@ -50,7 +50,7 @@
                                       d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
                                       clip-rule="evenodd"/>
                             </svg>
-                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-[--mid-bg-color] text-[--second-text-color] text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
+                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-(--mid-bg-color) text-(--second-text-color) text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
                                 Percentage of total earnings contributed by this source over all time.
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                                       d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
                                       clip-rule="evenodd"/>
                             </svg>
-                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-[--mid-bg-color] text-[--second-text-color] text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
+                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-(--mid-bg-color) text-(--second-text-color) text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
                                 Average increase or decrease in earnings per month.
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                                       d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
                                       clip-rule="evenodd"/>
                             </svg>
-                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-[--mid-bg-color] text-[--second-text-color] text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
+                            <div class="normal-case w-36 text-center absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-(--mid-bg-color) text-(--second-text-color) text-xs py-1 px-2 rounded-lg transition-opacity duration-150 opacity-0 group-hover:opacity-100">
                                 Average increase or decrease in earnings per year.
                             </div>
                         </div>
@@ -92,25 +92,25 @@
             </thead>
             <tbody id="assets-table-body">
             {% for earnings_source in earnings_sources %}
-            <tr class="border-t bg-[--second-bg-color] border-[--border-color]" data-code="{{ asset.asset|lower }}"
+            <tr class="border-t bg-(--second-bg-color) border-(--border-color)" data-code="{{ asset.asset|lower }}"
                 data-name="{{ asset.name|lower }}">
                 <td class="p-2 w-0 text-center {% if forloop.last %}rounded-bl-xl{% endif %}">
                 <span class="source-tag inline-block w-3 h-3 ml-2 rounded-full"
                       style="--bg-color: {{ earnings_source.color }}"></span>
                 </td>
-                <td class="px-2 py-2 text-[--first-text-color]">
+                <td class="px-2 py-2 text-(--first-text-color)">
                     {{ earnings_source.entity }}
                 </td>
-                <td class="whitespace-nowrap px-3 py-3 text-right text-[--first-text-color] tabular-nums">
+                <td class="whitespace-nowrap px-3 py-3 text-right text-(--first-text-color) tabular-nums">
                     {{ earnings_source.total_volume_entity|floatformat:"2"|intcomma }} {{ base_currency }}
                 </td>
-                <td class="whitespace-nowrap px-3 py-3 text-right text-[--first-text-color] tabular-nums">
+                <td class="whitespace-nowrap px-3 py-3 text-right text-(--first-text-color) tabular-nums">
                     {{ earnings_source.total_volume_entity_percentage|floatformat:"2" }}%
                 </td>
-                <td class="leading-loose px-3 py-3 text-right text-[--first-text-color] tabular-nums">
+                <td class="leading-loose px-3 py-3 text-right text-(--first-text-color) tabular-nums">
                     {% if earnings_source.delta_monthly >= 0 %}
                     +{{ earnings_source.delta_monthly|floatformat:"2"|intcomma }} {{ base_currency }}
-                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-[--green-bg-color] text-[--green-text-color]">
+                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-(--green-bg-color) text-(--green-text-color)">
                         <svg class="w-2 h-2 mr-1 inline-block" aria-hidden="true" viewBox="0 0 10 6"
                              transform="scale(1, -1)" style="transform: scale(1, -1);">
                             <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -120,7 +120,7 @@
                     </span>
                     {% else %}
                     {{ earnings_source.delta_monthly|floatformat:"2"|intcomma }} {{ base_currency }}
-                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-[--red-bg-color] text-[--red-text-color]">
+                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-(--red-bg-color) text-(--red-text-color)">
                         <svg class="w-2 h-2 mr-1 inline-block" aria-hidden="true" viewBox="0 0 10 6">
                             <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                   stroke-width="2" d="M1 1l4 4 4-4"/>
@@ -129,10 +129,10 @@
                     </span>
                     {% endif %}
                 </td>
-                <td class="leading-loose px-3 py-3 text-right text-[--first-text-color] tabular-nums {% if forloop.last %}rounded-br-xl{% endif %}">
+                <td class="leading-loose px-3 py-3 text-right text-(--first-text-color) tabular-nums {% if forloop.last %}rounded-br-xl{% endif %}">
                     {% if earnings_source.delta_yearly >= 0 %}
                     +{{ earnings_source.delta_yearly|floatformat:"2"|intcomma }} {{ base_currency }}
-                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-[--green-bg-color] text-[--green-text-color]">
+                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-(--green-bg-color) text-(--green-text-color)">
                         <svg class="w-2 h-2 mr-1 inline-block" aria-hidden="true" viewBox="0 0 10 6"
                              transform="scale(1, -1)" style="transform: scale(1, -1);">
                             <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -142,7 +142,7 @@
                     </span>
                     {% else %}
                     {{ earnings_source.delta_yearly|floatformat:"2"|intcomma }} {{ base_currency }}
-                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-[--red-bg-color] text-[--red-text-color]">
+                    <span class="leading-normal whitespace-nowrap ml-2 justify-center inline-flex relative items-center pb-[0.05rem] pt-0.5 px-1.5 rounded-md text-xxs bg-(--red-bg-color) text-(--red-text-color)">
                         <svg class="w-2 h-2 mr-1 inline-block" aria-hidden="true" viewBox="0 0 10 6">
                             <path stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                   stroke-width="2" d="M1 1l4 4 4-4"/>
