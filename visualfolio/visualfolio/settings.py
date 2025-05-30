@@ -69,14 +69,14 @@ ENV_CONFIG: Dict[str, EnvVarConfig] = {
         "required": True,
         "allowed_values": ('local', 'cloud')
     },
-    "VISUALFOLIO_SECRET_KEY": {
+    "DJANGO_SECRET_KEY": {
         "required": True
     },
-    "VISUALFOLIO_DEBUG": {
+    "DJANGO_DEBUG": {
         "default": "false",
         "coerce_type": bool
     },
-    "VISUALFOLIO_ALLOWED_HOSTS": {
+    "DJANGO_ALLOWED_HOSTS": {
         "required": True
     },
     "DB_NAME": {
@@ -115,9 +115,9 @@ if ENV_FILE.exists():
 # Core Settings
 # -----------------------------------------------------------------------------
 DEPLOYMENT_MODE = get_env_var("VISUALFOLIO_ENVIRONMENT", ENV_CONFIG["VISUALFOLIO_ENVIRONMENT"])
-SECRET_KEY = get_env_var("VISUALFOLIO_SECRET_KEY", ENV_CONFIG["VISUALFOLIO_SECRET_KEY"], DEPLOYMENT_MODE)
-DEBUG = get_env_var("VISUALFOLIO_DEBUG", ENV_CONFIG["VISUALFOLIO_DEBUG"], DEPLOYMENT_MODE)
-ALLOWED_HOSTS = get_env_var("VISUALFOLIO_ALLOWED_HOSTS", ENV_CONFIG["VISUALFOLIO_ALLOWED_HOSTS"], DEPLOYMENT_MODE).split(",")
+SECRET_KEY = get_env_var("DJANGO_SECRET_KEY", ENV_CONFIG["DJANGO_SECRET_KEY"], DEPLOYMENT_MODE)
+DEBUG = get_env_var("DJANGO_DEBUG", ENV_CONFIG["DJANGO_DEBUG"], DEPLOYMENT_MODE)
+ALLOWED_HOSTS = get_env_var("DJANGO_ALLOWED_HOSTS", ENV_CONFIG["DJANGO_ALLOWED_HOSTS"], DEPLOYMENT_MODE).split(",")
 
 
 # Customization
