@@ -1,7 +1,7 @@
 import os
-import datetime
 from pathlib import Path
 from typing import Any, Optional, Sequence, TypedDict, Dict
+import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,43 +73,19 @@ ENV_CONFIG: Dict[str, EnvVarConfig] = {
         "required": True
     },
     "DJANGO_DEBUG": {
-        "default": "false",
+        "required": True,
         "coerce_type": bool
     },
     "DJANGO_ALLOWED_HOSTS": {
         "required": True
     },
-    "DB_NAME": {
-        "required_in_modes": ['cloud']
+    "DJANGO_CSRF_TRUSTED_ORIGINS": {
+        "default": ""
     },
-    "DB_USER": {
+    "DATABASE_URL": {
         "required_in_modes": ['cloud']
-    },
-    "DB_PASSWORD": {
-        "required_in_modes": ['cloud']
-    },
-    "DB_HOST": {
-        "required_in_modes": ['cloud']
-    },
-    "DB_PORT": {
-        "required_in_modes": ['cloud'],
-        "coerce_type": int
     }
 }
-
-
-# Variables
-# -----------------------------------------------------------------------------
-ENV_FILE = Path('/etc/gunicorn_visualfolio.env')
-
-if ENV_FILE.exists():
-    with ENV_FILE.open('r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            key, value = line.split('=', 1)
-            os.environ.setdefault(key, value)
 
 
 # Core Settings
@@ -118,6 +94,10 @@ DEPLOYMENT_MODE = get_env_var("VISUALFOLIO_ENVIRONMENT", ENV_CONFIG["VISUALFOLIO
 SECRET_KEY = get_env_var("DJANGO_SECRET_KEY", ENV_CONFIG["DJANGO_SECRET_KEY"], DEPLOYMENT_MODE)
 DEBUG = get_env_var("DJANGO_DEBUG", ENV_CONFIG["DJANGO_DEBUG"], DEPLOYMENT_MODE)
 ALLOWED_HOSTS = get_env_var("DJANGO_ALLOWED_HOSTS", ENV_CONFIG["DJANGO_ALLOWED_HOSTS"], DEPLOYMENT_MODE).split(",")
+
+# CSRF Configuration
+csrf_origins_str = get_env_var("DJANGO_CSRF_TRUSTED_ORIGINS", ENV_CONFIG["DJANGO_CSRF_TRUSTED_ORIGINS"], DEPLOYMENT_MODE)
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins_str.split(',') if origin.strip()] if csrf_origins_str else []
 
 
 # Customization
@@ -169,21 +149,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'visualfolio.wsgi.application'
 
 
-# Database
+# Database and session config
 # -----------------------------------------------------------------------------
 if DEPLOYMENT_MODE == 'cloud':
-    db_config = {
-        key.replace('DB_', '').lower(): get_env_var(key, ENV_CONFIG[key], DEPLOYMENT_MODE)
-        for key in ENV_CONFIG
-        if key.startswith('DB_')
-    }
-    
+    database_url = get_env_var("DATABASE_URL", ENV_CONFIG["DATABASE_URL"], DEPLOYMENT_MODE)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            **db_config
-        }
+        'default': dj_database_url.parse(database_url)
     }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+    STATICFILES_DIRS = []
+
 else:
     DATABASES = {
         'default': {
@@ -218,8 +193,11 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+
 # Security
 # -----------------------------------------------------------------------------
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
@@ -247,10 +225,8 @@ else:
 
 # Logging
 # -----------------------------------------------------------------------------
-# Ensure the logs directory exists
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
-STATIC_ROOT.mkdir(exist_ok=True)
 
 # Base logging configuration for all environments
 LOGGING = {
@@ -326,15 +302,7 @@ if DEPLOYMENT_MODE == 'local':
         },
     })
 elif DEPLOYMENT_MODE == 'cloud':
-    # Cloud deployment only logs to console (picked up by AWS CloudWatch)
+    # Cloud deployment only logs to console
     pass
 else:
     raise ValueError(f"Invalid DEPLOYMENT_MODE: {DEPLOYMENT_MODE}. Must be 'local' or 'cloud'.")
-
-# AWS Lambda and API Gateway specific settings
-if DEPLOYMENT_MODE == 'cloud':
-    # Session configuration
-    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-    
-    # Static files handling for Lambda
-    STATICFILES_DIRS = []
