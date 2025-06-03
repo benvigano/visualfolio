@@ -1,6 +1,4 @@
 import colorsys
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
 import textwrap
 import requests
 import pandas as pd
@@ -15,6 +13,15 @@ from main.services.stateless.plotly_config import (
     plotly_configuration,
     opacity,
 )
+
+
+def _hex_to_rgb(hex_color: str) -> tuple[float, float, float]:
+    hex_color = hex_color.lstrip("#")
+    return tuple(int(hex_color[i:i+2], 16) / 255.0 for i in (0, 2, 4))
+
+def _rgb_to_hex(rgb_tuple: tuple[float, float, float]) -> str:
+    r, g, b = [int(c * 255) for c in rgb_tuple]
+    return f"#{r:02x}{g:02x}{b:02x}"
 
 
 def hex_to_hsl_components(hex_color):
@@ -60,7 +67,7 @@ def generate_shades(base_color, n, theme):
     """
     Generates n shades of the same hue (hue of base_color).
     """
-    base_rgb = mcolors.hex2color(base_color)
+    base_rgb = _hex_to_rgb(base_color)
     base_hue, _, _ = colorsys.rgb_to_hsv(*base_rgb)
 
     # Determine brightness range based on theme
@@ -89,7 +96,12 @@ def generate_shades(base_color, n, theme):
             # increase saturation for brighter shades
             saturation = brightness + (1 - max_brightness)
 
-        shade = mcolors.rgb2hex(colorsys.hls_to_rgb(base_hue, brightness, saturation))
+        
+        # Ensure the saturation is within [0,1] since changes in parameters can cause it to exceed this range
+        saturation = max(0, min(1, saturation))
+
+        rgb_color = colorsys.hls_to_rgb(base_hue, brightness, saturation)
+        shade = _rgb_to_hex(rgb_color)
         shades.append(shade)
 
     return shades
