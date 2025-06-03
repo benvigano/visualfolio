@@ -17,3 +17,5 @@ logs/
 
 # Ignore tailwind output file
 **/style.css
+
+/node_modules/
