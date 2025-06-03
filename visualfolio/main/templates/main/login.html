@@ -55,11 +55,11 @@
         </script>
     </head>
     <body>
-        <body class="flex bg-[--first-bg-color] h-screen">
+        <body class="flex bg-(--first-bg-color) h-screen">
             <button id="theme-toggle"
-            class="theme-toggle h-10 w-10 bg-[--second-text-color] hover:bg-[--third-text-color] rounded-xl fixed top-3 right-3 z-20 flex items-center justify-center">
+            class="theme-toggle h-10 w-10 bg-(--second-text-color) hover:bg-(--third-text-color) rounded-xl fixed top-3 right-3 z-20 flex items-center justify-center">
        <!-- Sun -->
-       <svg class="block dark:hidden w-6 h-6 text-[--first-bg-color]"
+       <svg class="block dark:hidden w-6 h-6 text-(--first-bg-color)"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -69,7 +69,7 @@
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=1.5  d="M12 5V3m0 18v-2M7.05 7.05 5.636 5.636m12.728 12.728L16.95 16.95M5 12H3m18 0h-2M7.05 16.95l-1.414 1.414M18.364 5.636 16.95 7.05M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
        </svg>
        <!-- Moon -->
-       <svg class="hidden dark:block w-5 h-5 text-[--first-bg-color]"
+       <svg class="hidden dark:block w-5 h-5 text-(--first-bg-color)"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -81,12 +81,12 @@
     </button>
     <div class="desktop-only-message min-h-screen w-full relative">
         <div class="inset-0 absolute flex items-center justify-center">
-            <div class="text-[--third-text-color] rounded-xl bg-[--third-bg-color] px-3 py-2 m-12">
+            <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
                 Visualfolio is currently available only for larger screens.
             </div>
         </div>
     </div>
-            <div class="wrapper w-full h-full text-[--first-text-color]">
+            <div class="wrapper w-full h-full text-(--first-text-color)">
                 <section>
                     <div class="flex flex-col items-center justify-center p-10 h-screen">
                         <a href="#" class="flex items-center text-2xl font-semibold">
@@ -103,9 +103,9 @@
                                 </a>
                             </div>
                         </a>
-                        <div class="w-full bg-[--second-bg-color] rounded-xl border border-[--border-color] max-w-sm">
+                        <div class="w-full bg-(--second-bg-color) rounded-xl border border-(--border-color) max-w-sm">
                             <div class="p-8 space-y-4">
-                                <h1 class="font-display font-medium text-2xl text-[--first-text-color]">Sign in</h1>
+                                <h1 class="font-display font-medium text-2xl text-(--first-text-color)">Sign in</h1>
                                 {% if messages %}
                                     {% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}
                                 {% endif %}
@@ -118,7 +118,7 @@
                                                placeholder="username"
                                                value="{{ username }}"
                                                readonly
-                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div>
                                         <input type="password"
@@ -127,13 +127,13 @@
                                                placeholder="password"
                                                value="{{ password }}"
                                                readonly
-                                               class="focus:outline-0 transition duration-100 focus:bg-[--mid-bg-color] bg-[--third-bg-color] border border-[--border-color] text-[--first-text-color] rounded-lg block w-full py-2 px-3">
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <a href="#"
-                                           class="text-sm transition duration-100 font-medium hover:underline text-[--first-accent-color]">Forgot password?</a>
+                                           class="text-sm transition duration-100 font-medium hover:underline text-(--first-accent-color)">Forgot password?</a>
                                         <button type="submit"
-                                                class="text-white bg-[--first-accent-color] transition duration-100 hover:bg-[--second-accent-color] focus:outline-none font-medium rounded-lg px-5 py-2 text-center">
+                                                class="text-white bg-(--first-accent-color) transition duration-100 hover:bg-(--second-accent-color) focus:outline-none font-medium rounded-lg px-5 py-2 text-center">
                                             Sign in
                                         </button>
                                     </div>

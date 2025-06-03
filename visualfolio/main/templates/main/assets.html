@@ -4,13 +4,13 @@ Assets
 {% endblock title %}
 {% block content %}
 {% load humanize %}
-<h1 class="font-display font-medium text-2xl text-[--first-text-color] mt-4 mb-6">Assets</h1>
+<h1 class="font-display font-medium text-2xl text-(--first-text-color) mt-4 mb-6">Assets</h1>
 <div class="flex w-full justify-between space-x-8">
     <!-- Asset Classes Table -->
     <div class="flex flex-col w-1/2 space-y-8">
-        <div class="relative overflow-x-auto bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+        <div class="relative overflow-x-auto bg-(--second-bg-color) border border-(--border-color) rounded-xl">
             <table class="w-full text-sm text-left">
-                <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+                <thead class="text-xs uppercase bg-(--third-bg-color) text-(--third-text-color)">
                 <tr>
                     <th scope="col" class="p-2 w-0"></th>
                     <th scope="col" class="px-2 py-2">Asset Class</th>
@@ -20,19 +20,19 @@ Assets
                 </thead>
                 <tbody>
                 {% for asset_class in asset_classes %}
-                <tr class="border-t bg-[--second-bg-color] border-[--border-color]">
+                <tr class="border-t bg-(--second-bg-color) border-(--border-color)">
                     <td class="p-2 w-0 text-center">
                   <span class="asset-tag inline-block w-3 h-3 ml-2 rounded-full"
                         style="--bg-color-light: {{ asset_class.hsl_light_background }};
                                --bg-color-dark: {{ asset_class.hsl_dark_background }}"></span>
                     </td>
-                    <td class="px-2 py-2 font-normal text-[--first-text-color]">
+                    <td class="px-2 py-2 font-normal text-(--first-text-color)">
                         {{ asset_class.asset_class }}
                     </td>
-                    <td class="px-2 py-2 text-right font-normal text-[--first-text-color] tabular-nums whitespace-nowrap">
+                    <td class="px-2 py-2 text-right font-normal text-(--first-text-color) tabular-nums whitespace-nowrap">
                         {{ asset_class.allocation|floatformat:"2" }}%
                     </td>
-                    <td class="pr-4 py-2 text-right text-[--first-text-color] tabular-nums whitespace-nowrap">
+                    <td class="pr-4 py-2 text-right text-(--first-text-color) tabular-nums whitespace-nowrap">
                         {{ asset_class.asset_class_tot_value|floatformat:"2"|intcomma }} {{ base_currency }}
                     </td>
                 </tr>
@@ -42,26 +42,26 @@ Assets
         </div>
         <!-- Relative Streamgraph -->
         <div>
-            <h2 class="font-medium text-[--first-text-color] mb-4">Asset allocation in time</h2>
-            <div class="h-[196px] bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+            <h2 class="font-medium text-(--first-text-color) mb-4">Asset allocation in time</h2>
+            <div class="h-[196px] bg-(--second-bg-color) border border-(--border-color) rounded-xl">
                 <div id="plot-container" class="">{{ relative_streamgraph|safe }}</div>
             </div>
         </div>
     </div>
     <!-- Donut Chart -->
-    <div class="w-1/2 h-[450px] bg-[--second-bg-color] border border-[--border-color] rounded-xl overflow-hidden relative">
+    <div class="w-1/2 h-[450px] bg-(--second-bg-color) border border-(--border-color) rounded-xl overflow-hidden relative">
         <div class="">{{ donut|safe }}</div>
     </div>
 </div>
 <div class="flex justify-between items-end mt-8">
-    <h2 class="font-medium text-[--first-text-color] mb-4">All assets</h2>
+    <h2 class="font-medium text-(--first-text-color) mb-4">All assets</h2>
     <!-- Search Bar -->
     <div class="mb-4 flex items-center space-x-4 w-60">
         <div class="flex-1">
             <form class="w-60">
                 <div class="relative">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-[--second-text-color]"
+                        <svg class="w-4 h-4 text-(--second-text-color)"
                              aria-hidden="true"
                              xmlns="http://www.w3.org/2000/svg"
                              fill="none"
@@ -72,7 +72,7 @@ Assets
                     </div>
                     <input type="search"
                            id="asset-search"
-                           class="w-60 block w-full p-2 ps-10 text-xs text-[--second-text-color] rounded-lg bg-[--second-bg-color] border border-[--border-color] focus:outline-0 focus:bg-[--third-bg-color]  transition duration-100"
+                           class="w-60 block w-full p-2 ps-10 text-xs text-(--second-text-color) rounded-lg bg-(--second-bg-color) border border-(--border-color) focus:outline-0 focus:bg-(--third-bg-color)  transition duration-100"
                            placeholder="Search assets"
                            required>
                 </div>
@@ -81,9 +81,9 @@ Assets
     </div>
 </div>
 <!-- Assets Table -->
-<div class="relative overflow-x-auto bg-[--second-bg-color] border border-[--border-color] rounded-xl">
+<div class="relative overflow-x-auto bg-(--second-bg-color) border border-(--border-color) rounded-xl">
     <table class="w-full text-sm text-left">
-        <thead class="text-xs uppercase bg-[--third-bg-color] text-[--third-text-color]">
+        <thead class="text-xs uppercase bg-(--third-bg-color) text-(--third-text-color)">
         <tr>
             <th scope="col" class="p-2 w-0"></th>
             <th scope="col" class="px-2 py-2">Asset</th>
@@ -93,7 +93,7 @@ Assets
         </thead>
         <tbody id="assets-table-body">
         {% for asset in assets %}
-        <tr class="border-t bg-[--second-bg-color] border-[--border-color]"
+        <tr class="border-t bg-(--second-bg-color) border-(--border-color)"
             data-code="{{ asset.asset|lower }}"
             data-name="{{ asset.name|lower }}">
             <td class="p-2 w-0 text-center">
@@ -101,16 +101,16 @@ Assets
                     style="--bg-color-light: {{ asset.hsl_light_background }};
                            --bg-color-dark: {{ asset.hsl_dark_background }}"></span>
             </td>
-            <td class="px-2 py-2 font-medium text-[--first-text-color] whitespace-nowrap">
+            <td class="px-2 py-2 font-medium text-(--first-text-color) whitespace-nowrap">
                 {{ asset.asset }}
-                <div class="text-xs font-normal text-[--third-text-color]">{{ asset.name }}</div>
+                <div class="text-xs font-normal text-(--third-text-color)">{{ asset.name }}</div>
             </td>
-            <td class="px-4 py-2 text-right font-normal text-[--first-text-color] tabular-nums">
+            <td class="px-4 py-2 text-right font-normal text-(--first-text-color) tabular-nums">
                 {{ asset.allocation|floatformat:"2" }}%
             </td>
-            <td class="px-4 py-2 text-right text-[--first-text-color] tabular-nums">
+            <td class="px-4 py-2 text-right text-(--first-text-color) tabular-nums">
                 {{ asset.tot_current_value|floatformat:"2"|intcomma }} {{ base_currency }}
-                <div class="text-xs font-normal text-[--third-text-color]">
+                <div class="text-xs font-normal text-(--third-text-color)">
                     {{ asset.tot_balance|floatformat:"-4"|intcomma }} units
                 </div>
             </td>
