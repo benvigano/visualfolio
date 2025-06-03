@@ -9,8 +9,8 @@ class DemoUserExistenceMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # If settings.MODE is set to 'demo' AND the user is authenticated
-        if getattr(settings, 'MODE', 'production') == 'demo' and request.user.is_authenticated:
+        # If the user is authenticated
+        if request.user.is_authenticated:
             User = get_user_model()
             # If the user doesn't exist (because it was deleted by the demo user cleanup automation)
             if not User.objects.filter(id=request.user.id).exists():

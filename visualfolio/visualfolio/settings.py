@@ -12,7 +12,6 @@ ENV_FILE = Path('/etc/gunicorn_demo.env')
 REQUIRED_VARIABLES = [
     "VISUALFOLIO_SECRET_KEY",
     "VISUALFOLIO_DEBUG",
-    "VISUALFOLIO_MODE",
     "VISUALFOLIO_ALLOWED_HOSTS",
 ]
 
@@ -28,17 +27,12 @@ if ENV_FILE.exists():
 
 SECRET_KEY = os.environ.get("VISUALFOLIO_SECRET_KEY")
 DEBUG = os.environ.get("VISUALFOLIO_DEBUG").lower() == "true"
-MODE = os.environ.get("VISUALFOLIO_MODE")
 ALLOWED_HOSTS = os.environ.get("VISUALFOLIO_ALLOWED_HOSTS").split(",")
 
 
 # Demo
 # -----------------------------------------------------------------------------
-if MODE == 'demo':
-    SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-    DEMO_ACCOUNT_CUTOFF = datetime.timedelta(hours=3)
-else:
-    SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+DEMO_ACCOUNT_CUTOFF = datetime.timedelta(hours=3)
 
 
 # Customization
@@ -128,6 +122,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Security
 # -----------------------------------------------------------------------------
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
