@@ -27,7 +27,7 @@
     --walkthrough-bg-color: white; 
     
     /* Text colors */
-    --first-text-color: #121212;
+    --first-text-color: #0a0a0a;
     --second-text-color: #272727;
     --third-text-color: #616161;
     --disabled-text-color: #aeaeae;
@@ -52,9 +52,9 @@
 .dark {
      /* Background colors */
      --first-bg-color: #0d0d0d;
-     --second-bg-color: #202020;
-     --third-bg-color: #292929;
-     --border-color: #2b2b2b;
+     --second-bg-color: #181818;
+     --third-bg-color: #1f1f1f;
+     --border-color: #212121;
      --mid-bg-color: #3e3e3e;
      --walkthrough-bg-color: #191919; 
     
