@@ -12,14 +12,13 @@ def cleanup_demo_users():
     User = get_user_model()
     cutoff_date = timezone.now() - cutoff
     demo_users = User.objects.filter(last_login__lt=cutoff_date)
+    total_users = User.objects.count()
 
     if not demo_users.exists():
-        logger.info(f"No users present.")
+        logger.info(f"No users older than cutoff date ({cutoff_date}). Skipping cleanup.")
         return
 
-    logger.info(f"Deleting {demo_users.count()} demo users older than cutoff date ({cutoff_date}):")
-    for user in demo_users:
-        logger.info(f"User ID: {user.id}, Username: {user.username}, Last Login: {user.last_login}")
+    logger.info(f"Deleting {demo_users.count()} demo users out of {total_users} total users because they are older than cutoff date ({cutoff_date}).")
 
     # Perform deletion
     deleted_count, _ = demo_users.delete()
