@@ -51,21 +51,21 @@ class DemoLoginView(View):
             return redirect("home")
         return super().dispatch(request, *args, **kwargs)
 
+    def _generate_unique_credentials(self):
+        User = get_user_model()
+        while True:
+            username, name = generate_realistic_user()
+            if not User.objects.filter(username=username).exists():
+                password = get_random_string(length=12)
+                return username, name, password
+
     def get(self, request, *args, **kwargs):
         User = get_user_model()
 
         # Check if the credentials have already been set (ex: in case of prefetch/prelaod)
         if not request.session.get("demo_username", False):
 
-            # Generate username and name
-            username, name = generate_realistic_user()
-
-            # Ensure the username is unique
-            while User.objects.filter(username=username).exists():
-                username, name = generate_realistic_user()
-
-            # Generate a random password
-            password = get_random_string(length=12)
+            username, name, password = self._generate_unique_credentials()
 
             # Store credentials in the session
             request.session["demo_username"] = username
@@ -121,8 +121,7 @@ class DemoLoginView(View):
                     )
             except IntegrityError:
                 # If the username is already taken, generate new credentials and retry
-                username, name = generate_realistic_user()
-                password = get_random_string(length=12)
+                username, name, password = self._generate_unique_credentials()
 
         # Log the user in
         login(request, user)
