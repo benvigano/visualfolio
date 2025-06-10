@@ -1,10 +1,14 @@
 import logging
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.conf import settings
 
 logger = logging.getLogger("visualfolio_scheduled_tasks")
 
-def delete_old_demo_accounts(cutoff):
+
+def cleanup_demo_users():
+    cutoff = settings.DEMO_ACCOUNT_CUTOFF
+
     User = get_user_model()
     cutoff_date = timezone.now() - cutoff
     demo_users = User.objects.filter(last_login__lt=cutoff_date)
