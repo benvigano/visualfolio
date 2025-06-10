@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.views.generic import TemplateView, ListView
 from django.db.models import Count
 
