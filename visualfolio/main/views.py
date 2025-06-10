@@ -111,22 +111,18 @@ class DemoLoginView(View):
             messages.error(request, "Session expired or invalid. Please try again.")
             return redirect("demo_login")
 
-        if User.objects.filter(username=username).exists():
-            while True:
+        user = None
+        while not user:
+            try:
+                # Use a transaction to ensure atomicity
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=username, password=password, first_name=name
+                    )
+            except IntegrityError:
+                # If the username is already taken, generate new credentials and retry
                 username, name = generate_realistic_user()
-                if not User.objects.filter(username=username).exists():
-                    break
-            password = get_random_string(length=12)
-            request.session["demo_username"] = username
-            request.session["demo_password"] = password
-            request.session["demo_name"] = name
-
-        # Create the new user
-        with transaction.atomic():
-            user = User.objects.create_user(
-                username=username, password=password, first_name=name
-            )
-            user.save()
+                password = get_random_string(length=12)
 
         # Log the user in
         login(request, user)
