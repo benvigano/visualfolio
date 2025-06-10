@@ -46,6 +46,8 @@ class CustomErrorView(View):
 
 
 class DemoLoginView(View):
+    MAX_USERNAME_GENERATION_ATTEMPTS = 100
+
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
             return redirect("home")
@@ -53,11 +55,22 @@ class DemoLoginView(View):
 
     def _generate_unique_credentials(self):
         User = get_user_model()
-        while True:
+
+        # Try to generate a unique user up to MAX_USERNAME_GENERATION_ATTEMPTS times
+        for _ in range(self.MAX_USERNAME_GENERATION_ATTEMPTS):
             username, name = generate_realistic_user()
             if not User.objects.filter(username=username).exists():
                 password = get_random_string(length=12)
                 return username, name, password
+
+        # If still no unique user, add a random suffix to ensure uniqueness
+        base_username_for_suffix, name = generate_realistic_user()
+        while True:
+            base_user, domain = base_username_for_suffix.split("@")
+            unique_username = f"{base_user}_{get_random_string(12)}@{domain}"
+            if not User.objects.filter(username=unique_username).exists():
+                password = get_random_string(length=12)
+                return unique_username, name, password
 
     def get(self, request, *args, **kwargs):
         User = get_user_model()
