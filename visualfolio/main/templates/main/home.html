@@ -45,11 +45,11 @@ Home
 </div>
 <div id="walkthroughPopup"
      class="opacity-0 transition-opacity duration-300 ease-in-out fixed bottom-3 right-16 flex items-end justify-end hidden">
-    <div class="h-[21rem] bg-(--second-bg-color) rounded-2xl border-4 border-(--mid-bg-color) p-4 relative">
+    <div class="h-[21rem] bg-(--second-bg-color) rounded-2xl border-2 border-(--first-accent-color) p-4 relative">
         <div id="walkthroughContent">
 
             <div class="flex justify-between items-center space-x-1">
-                <div class="flex space-x-0.5 items-center">
+                <div class="flex space-x-0.5 items-center p-1">
                     <svg class="w-5 h-5 text-(--second-text-color)"
                          aria-hidden="true"
                          xmlns="http://www.w3.org/2000/svg"
@@ -62,16 +62,18 @@ Home
                     </svg>
                     <h2 class="pl-1 text-(--second-text-color) font-medium">Streamgraph</h2>
                 </div>
-                <div class="flex h-6 space-x-4 items-center">
-                    <span class="text-xs bg-(--third-bg-color) ml-4 py-0.5 px-1 rounded-md font-mono font-semibold text-(--third-text-color)"></span>
-                    <button id="nextButton"
-                            class="text-mlg bg-(--first-accent-color) hover:bg-(--second-accent-color) rounded-md text-white px-3 py-1 font-medium">
-                        Next
-                    </button>
-                    <button id="closeButton"
-                            class="text-mlg bg-(--first-accent-color) hover:bg-(--second-accent-color) rounded-md text-white px-3 py-1 font-medium">
-                        Close
-                    </button>
+                <div class="flex h-6 items-center">
+                    <span class="text-xs bg-(--third-bg-color) py-0.5 px-1 rounded-md font-mono font-semibold text-(--third-text-color) mr-4"></span>
+                    <div class="flex space-x-0">
+                        <button id="nextButton"
+                                class="text-mlg bg-(--first-accent-color) hover:bg-(--second-accent-color) rounded-md text-white px-3 py-1 font-medium">
+                            Next
+                        </button>
+                        <button id="closeButton"
+                                class="text-mlg bg-(--first-accent-color) hover:bg-(--second-accent-color) rounded-md text-white px-3 py-1 font-medium">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-col w-80 mt-4">
