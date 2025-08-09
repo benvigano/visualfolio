@@ -14,7 +14,7 @@ plotly_layout = {
         },
         "paper_bgcolor": "rgba(0,0,0,0)",
         "plot_bgcolor": "rgba(0,0,0,0)",
-        "yaxis": {"gridcolor": "rgb(200,200,200)"},
+        "yaxis": {"gridcolor": "rgb(220,220,220)"},
         "hoverlabel": {
             "bgcolor": "rgb(180, 180, 180)",
             "bordercolor": "rgba(0,0,0,0)",
@@ -31,7 +31,7 @@ plotly_layout = {
         },
         "paper_bgcolor": "rgba(0,0,0,0)",
         "plot_bgcolor": "rgba(0,0,0,0)",
-        "yaxis": {"gridcolor": "rgb(128,128,128)"},
+        "yaxis": {"gridcolor": "rgb(50,50,50)"},
         "hoverlabel": {
             "bgcolor": "rgb(80, 80, 80)",
             "bordercolor": "rgba(0,0,0,0)",
