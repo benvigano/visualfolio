@@ -1,0 +1,163 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Setting up demo user...</title>
+        <link rel="icon"
+              href="{% static 'main/img/favicon.svg' %}"
+              type="image/svg+xml">
+        <link rel="apple-touch-icon"
+              sizes="300x300"
+              href="{% static 'main/img/favicon-300x300.png' %}">
+        <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+        <meta name="robots" content="noindex">
+        <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        function setCookie(name, value) {
+            document.cookie = `${name}=${value}; path=/; domain=.visualfol.io; Secure; SameSite=Strict`;
+        }
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        function detectSystemTheme() { return prefersDarkScheme.matches ? 'dark' : 'light'; }
+        function applyCookieTheme() {
+            let theme = getCookie('theme');
+            if (theme === 'dark') { document.documentElement.classList.add('dark'); }
+            else { document.documentElement.classList.remove('dark'); }
+        }
+        (function () {
+            let theme = getCookie('theme');
+            if (!theme) { setCookie('theme', detectSystemTheme()); }
+            applyCookieTheme();
+        })();
+        </script>
+    </head>
+    <body class="bg-(--first-bg-color) min-h-screen flex items-center justify-center select-none">
+        <div class="w-full max-w-sm mx-4 bg-(--second-bg-color) border border-(--border-color) rounded-xl">
+            <div class="p-8 space-y-8 min-h-[400px]">
+                <div class="text-center space-y-4">
+                    <h1 class="font-display font-medium text-2xl text-(--first-text-color) text-left">Setting up demo user...</h1>
+                    <!-- User Avatar and Name -->
+                    <div class="flex flex-col items-center space-y-4 my-14">
+                        <div class="relative flex-shrink-0 inline-flex items-center justify-center w-16 h-16 overflow-hidden rounded-full bg-(--mid-bg-color)">
+                            <span class="font-semibold text-2xl text-(--third-text-color)">
+                                {{ user.first_name|default:''|slice:":1" }}{{ user.last_name|default:''|slice:":1" }}
+                            </span>
+                        </div>
+                        <span class="text-(--first-text-color) text-lg">{{ user.first_name }}</span>
+                    </div>
+                </div>
+                <div class="space-y-4 mx-12 mb-2" id="steps-container">
+                    <!-- Steps title -->
+                    <div class="mb-4">
+                        <span class="text-md font-medium text-(--first-text-color)">Loading mock user data:</span>
+                    </div>
+                    <!-- Step list -->
+                    {% for step in steps %}
+                        <div class="flex items-center space-x-3 step"
+                             data-step-key="{{ step.key }}"
+                             data-completed="false">
+                            <!-- Status icon -->
+                            <div class="w-3.5 h-3.5 flex-shrink-0 status-icon">
+                                <!-- Default state (pending) -->
+                                <svg class="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-600"
+                                     fill="currentColor"
+                                     viewBox="0 0 16 16"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 13A5 5 0 1 0 8 3a5 5 0 0 0 0 10zm0 2A7 7 0 1 1 8 1a7 7 0 0 1 0 14z" />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-(--third-text-color)">{{ step.message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div id="error-container"
+                     class="px-8 py-2 text-center text-sm text-red-500"></div>
+            </div>
+        </div>
+        <script>
+(function() {
+    const progressUrl = '{% url "demo_init_progress" %}';
+    const stepElements = Array.from(document.querySelectorAll('.step'));
+    
+    const iconTemplates = {
+        pending: `<svg class="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-600" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 13A5 5 0 1 0 8 3a5 5 0 0 0 0 10zm0 2A7 7 0 1 1 8 1a7 7 0 0 1 0 14z" />
+        </svg>`,
+        running: `<svg class="w-3.5 h-3.5 text-(--third-text-color) animate-spin" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.9547098,7.98576084 L15.0711,7.99552 C15.6179,8.07328 15.9981,8.57957 15.9204,9.12636 C15.6826,10.7983 14.9218,12.3522 13.747,13.5654 C12.5721,14.7785 11.0435,15.5888 9.37999,15.8801 C7.7165,16.1714 6.00349,15.9288 4.48631,15.187 C3.77335,14.8385 3.12082,14.3881 2.5472,13.8537 L1.70711,14.6938 C1.07714,15.3238 3.55271368e-15,14.8776 3.55271368e-15,13.9867 L3.55271368e-15,9.99998 L3.98673,9.99998 C4.87763,9.99998 5.3238,11.0771 4.69383,11.7071 L3.9626,12.4383 C4.38006,12.8181 4.85153,13.1394 5.36475,13.3903 C6.50264,13.9466 7.78739,14.1285 9.03501,13.9101 C10.2826,13.6916 11.4291,13.0839 12.3102,12.174 C13.1914,11.2641 13.762,10.0988 13.9403,8.84476 C14.0181,8.29798 14.5244,7.91776 15.0711,7.99552 L14.9547098,7.98576084 Z M11.5137,0.812976 C12.2279,1.16215 12.8814,1.61349 13.4558,2.14905 L14.2929,1.31193 C14.9229,0.681961 16,1.12813 16,2.01904 L16,6.00001 L12.019,6.00001 C11.1281,6.00001 10.6819,4.92287 11.3119,4.29291 L12.0404,3.56441 C11.6222,3.18346 11.1497,2.86125 10.6353,2.60973 C9.49736,2.05342 8.21261,1.87146 6.96499,2.08994 C5.71737,2.30841 4.57089,2.91611 3.68976,3.82599 C2.80862,4.73586 2.23802,5.90125 2.05969,7.15524 C1.98193,7.70202 1.47564,8.08224 0.928858,8.00448 C0.382075,7.92672 0.00185585,7.42043 0.0796146,6.87364 C0.31739,5.20166 1.07818,3.64782 2.25303,2.43465 C3.42788,1.22148 4.95652,0.411217 6.62001,0.119916 C8.2835,-0.171384 9.99651,0.0712178 11.5137,0.812976 Z" />
+        </svg>`,
+        done: `<svg class="w-3.5 h-3.5" style="color: var(--green-text-free-color)" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M8,0 C12.4183,0 16,3.58172 16,8 C16,12.4183 12.4183,16 8,16 C3.58172,16 0,12.4183 0,8 C0,3.58172 3.58172,0 8,0 Z M8,2 C4.68629,2 2,4.68629 2,8 C2,11.3137 4.68629,14 8,14 C11.3137,14 14,11.3137 14,8 C14,4.68629 11.3137,2 8,2 Z M7,8.58579 L10.2929,5.29289 C10.6834,4.90237 11.3166,4.90237 11.7071,5.29289 C12.0675615,5.65337923 12.0952893,6.22060645 11.7902834,6.61290152 L11.7071,6.70711 L7.70711,10.7071 C7.34662077,11.0675615 6.77939355,11.0952893 6.38709848,10.7902834 L6.29289,10.7071 L4.29289,8.70711 C3.90237,8.31658 3.90237,7.68342 4.29289,7.29289 C4.65337923,6.93241 5.22060645,6.90468077 5.61290152,7.20970231 L5.70711,7.29289 L7,8.58579 L10.2929,5.29289 L7,8.58579 Z" />
+        </svg>`
+    };
+
+    function updateSteps(data) {
+        const currentKey = data.step_key;
+
+        if (currentKey === 'error') {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = `An error occurred: ${data.message || 'Unknown error'}`;
+            return;
+        }
+        
+        if (currentKey === 'complete') {
+            // Mark all steps as done before redirecting
+            stepElements.forEach((el) => {
+                const iconContainer = el.querySelector('.status-icon');
+                iconContainer.innerHTML = iconTemplates.done;
+                el.dataset.completed = 'true';
+            });
+            
+            // Wait half a second to show completion then redirect
+            setTimeout(() => {
+                window.location.href = '{% url "overview" %}';
+            }, 500);
+            return;
+        }
+
+        let foundCurrent = false;
+        
+        stepElements.forEach((el) => {
+            const key = el.dataset.stepKey;
+            const iconContainer = el.querySelector('.status-icon');
+
+            if (key === currentKey) {
+                iconContainer.innerHTML = iconTemplates.running;
+                el.dataset.completed = 'false';
+                foundCurrent = true;
+            } else if (!foundCurrent) {
+                iconContainer.innerHTML = iconTemplates.done;
+                el.dataset.completed = 'true';
+            } else {
+                iconContainer.innerHTML = iconTemplates.pending;
+                el.dataset.completed = 'false';
+            }
+        });
+    }
+
+    async function poll() {
+        try {
+            const res = await fetch(progressUrl, {cache: 'no-cache'});
+            if (!res.ok) throw new Error('Failed to fetch');
+            const data = await res.json();
+            updateSteps(data);
+
+            if (data.step_key !== 'complete' && data.step_key !== 'error') {
+                setTimeout(poll, 1000);
+            }
+        } catch(e) {
+            setTimeout(poll, 2000);
+        }
+    }
+
+    poll();
+})();
+        </script>
+    </body>
+</html>

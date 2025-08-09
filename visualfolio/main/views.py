@@ -33,8 +33,13 @@ from main.services.stateless.visualization import (
     generate_earnings_barplot,
 )
 from main.services.stateless.calculation import BalanceCalculationService
+from main.services.stateful.demo_initializer import initialize_demo_user
 
 from .models import Transaction, Account, Asset, Trade, BalanceHistory, AssetClass
+
+import threading
+from django.core.cache import cache
+from django.http import JsonResponse
 
 
 class CustomErrorView(View):
@@ -144,238 +149,85 @@ class DemoLoginView(View):
         del request.session["demo_password"]
         del request.session["demo_name"]
 
-        # Initialize demo user data
+        # ------------------------------------------------------------
+        # Run heavy demo-data initialization asynchronously so that we
+        # can provide live progress updates to the frontend.
+        # ------------------------------------------------------------
+        progress_key = f"demo_init_progress_{user.id}"
+        cache.set(progress_key, {"step_key": "starting"}, None)
+
+        # Launch the worker thread (daemon so it does not block shutdown)
+        threading.Thread(
+            target=initialize_demo_user,
+            args=(user,),
+            kwargs={"progress_key": progress_key},
+            daemon=True,
+        ).start()
+
+        # Redirect the user to the initializing page where they will see
+        # a GitHub-Actions style progress log while data is being created.
+        return redirect("demo_initializing")
+    
+
+class DemoInitializingView(LoginRequiredMixin, TemplateView):
+    template_name = "main/initializing.html"
+    login_url = "demo_login"
+
+    def _format_step_message(self, step_type: str, count: int | None = None) -> str:
+        """Format a step message based on the step type and optional count."""
+        if step_type == "accounts":
+            return f"Loading {count} accounts"
+        elif step_type == "transactions":
+            return f"Loading {count:,} transactions"
+        elif step_type == "trades":
+            return f"Loading {count} trades"
+        elif step_type == "balance_history":
+            return "Generating balance history"
+        else:
+            return "Starting"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         base_path = os.path.join(
             settings.BASE_DIR, "demo", "demo_static_data", "initial_user_data"
         )
 
-        # Mapping of old Account PKs to new instances
-        account_mapping = {}
-
-        def load_json_data(filename):
-            with open(os.path.join(base_path, filename), "r") as file:
+        def load_json_data(filename: str):
+            with open(os.path.join(base_path, filename), "r", encoding="utf-8") as file:
                 return json.load(file)
 
-        # Load and create Account instances
-        accounts_data = load_json_data("demo_accounts.json")
-        for entry in accounts_data:
-            old_pk = entry.get("pk")
-            fields = entry.get("fields", {})
-            account = Account.objects.create(
-                user=user,
-                institution_name=fields.get("institution_name"),
-                country=fields.get("country"),
-                nordigen_code=fields.get("nordigen_code"),
-                color=fields.get("color"),
-            )
-            account_mapping[old_pk] = account
+        accounts_count = len(load_json_data("demo_accounts.json"))
+        transactions_count = len(load_json_data("demo_transactions.json"))
+        trades_count = len(load_json_data("demo_trades.json"))
 
-        def get_asset_instance(code):
-            try:
-                return Asset.objects.get(code=code)
-            except Asset.DoesNotExist as exc:
-                raise Exception(f"Asset with code '{code}' not supported") from exc
-
-        # Load initial balances data
-        initial_balances_data = load_json_data("demo_initial_balances.json")
-        latest_balances = []
-
-        for entry in initial_balances_data:
-            fields = entry.get("fields", {})
-            old_account_pk = fields.get("account")
-            account = account_mapping.get(old_account_pk)
-            asset = get_asset_instance(fields.get("asset"))
-
-            if account and asset:
-                latest_balances.append({
-                    'account': account,
-                    'asset': asset,
-                    'balance': fields.get("balance")
-                })
-
-        # Load Transaction data
-        transactions_data = load_json_data("demo_transactions.json")
-        transaction_instances = []
-
-        # Extract all txn datetimes and find the last date
-        transaction_datetimes = [
-            parse_datetime(entry["fields"].get("datetime"))
-            for entry in transactions_data
+        context["steps"] = [
+            {
+                "key": "accounts",
+                "message": self._format_step_message("accounts", accounts_count),
+            },
+            {
+                "key": "transactions",
+                "message": self._format_step_message("transactions", transactions_count),
+            },
+            {"key": "trades", "message": self._format_step_message("trades", trades_count)},
+            {
+                "key": "balance_history",
+                "message": self._format_step_message("balance_history"),
+            },
         ]
-        last_transaction_date = max(transaction_datetimes)
+        return context
 
-        # Get the current date and time in UTC
-        current_date = datetime.datetime.now(datetime.timezone.utc)
 
-        # Calculate the time difference
-        time_difference = current_date - last_transaction_date
-        months_difference = (current_date.year - last_transaction_date.year) * 12 + (
-                current_date.month - last_transaction_date.month
+class DemoInitProgressView(LoginRequiredMixin, View):
+    """Return JSON with the current initialization progress."""
+
+    def get(self, request, *args, **kwargs):
+        progress = cache.get(
+            f"demo_init_progress_{request.user.id}",
+            {"step_key": "starting"},
         )
-
-        for entry in transactions_data:
-            fields = entry.get("fields", {})
-            old_account_pk = fields.get("account")
-            account = account_mapping.get(old_account_pk)
-            asset = get_asset_instance(fields.get("asset"))
-            category = fields.get("category")
-
-            # Check and replace DEMO_USER_FULL_NAME with user's first name
-            entity = fields.get("entity")
-            if entity == "FirstName LastName":
-                entity = user.first_name
-
-            original_datetime = parse_datetime(fields.get("datetime"))
-
-            # If the txn is earnings:
-            if category == "earnings":
-                shifted_datetime = original_datetime + relativedelta(
-                    months=months_difference
-                )
-            else:
-                shifted_datetime = original_datetime + time_difference
-
-            transaction_instances.append(
-                Transaction(
-                    account=account,
-                    entity=entity,
-                    amount=fields.get("amount"),
-                    datetime=shifted_datetime,
-                    asset=asset,
-                )
-            )
-
-        # Bulk create Transaction instances
-        Transaction.objects.bulk_create(transaction_instances)
-
-        # Load Trade data
-        trades_data = load_json_data("demo_trades.json")
-        trade_instances = []
-
-        # Extract all trade datetimes and find the latest date
-        trade_datetimes = [
-            parse_datetime(entry["fields"].get("datetime")) for entry in trades_data
-        ]
-        last_trade_date = max(trade_datetimes)
-
-        # Get the current date and time in UTC
-        current_date = datetime.datetime.now(datetime.timezone.utc)
-
-        # Calculate the time difference
-        time_difference = current_date - last_trade_date
-
-        for entry in trades_data:
-            fields = entry.get("fields", {})
-            old_account_pk = fields.get("account")
-            account = account_mapping.get(old_account_pk)
-            asset = get_asset_instance(fields.get("asset"))
-            counter = get_asset_instance(fields.get("counter"))
-
-            original_datetime = parse_datetime(fields.get("datetime"))
-            # Shift the datetime by the time difference
-            shifted_datetime = original_datetime + time_difference
-
-            trade_instances.append(
-                Trade(
-                    account=account,
-                    asset=asset,
-                    amount=fields.get("amount"),
-                    datetime=shifted_datetime,
-                    counter=counter,
-                )
-            )
-
-        # Bulk create Trade instances
-        Trade.objects.bulk_create(trade_instances)
-
-        # Generate balance history
-        all_transactions = Transaction.objects.filter(account__user=user)
-
-        # Initialize the balance calculation service
-        balance_calculator = BalanceCalculationService()
-
-        start_date = min(
-            [t.datetime.date() for t in all_transactions]
-        )
-
-        with transaction.atomic():
-            all_balance_history_objs = []
-            items_and_dates = set()
-
-            # Create latest balance history records
-            current_date = datetime.datetime.now().date()
-            for balance_data in latest_balances:
-                all_balance_history_objs.append(
-                    BalanceHistory(
-                        account=balance_data['account'],
-                        asset=balance_data['asset'],
-                        date=current_date,
-                        balance=balance_data['balance']
-                    )
-                )
-                items_and_dates.add((balance_data['account'].id, balance_data['asset'].code, current_date))
-
-            # Group transactions by account-asset
-            transactions_by_item = {}
-            for balance_data in latest_balances:
-                key = (balance_data['account'], balance_data['asset'])
-                transactions_by_item[key] = []
-
-            for txn in all_transactions:
-                key = (txn.account, txn.asset)
-                if key not in transactions_by_item:
-                    raise Exception(f"Found transaction for account-asset pair that has no initial balance: {key}")
-                transactions_by_item[key].append(txn)
-
-            # Generate balance history for each account-asset pair
-            for (account, asset), transactions in transactions_by_item.items():
-                
-                current_balance = next(
-                    (b['balance'] for b in latest_balances 
-                     if b['account'] == account and b['asset'] == asset)
-                )
-
-                # Generate balance history
-                balance_history = balance_calculator.generate_balance_history(
-                    transactions,
-                    current_balance,
-                    start_date,
-                    datetime.datetime.now().date(),
-                )
-
-                # Collect BalanceHistory objects and track (item, date) pairs
-                for date, balance in balance_history.items():
-                    if date != current_date:  # Current date already created
-                        all_balance_history_objs.append(
-                            BalanceHistory(
-                                account=account,
-                                asset=asset,
-                                date=date,
-                                balance=balance
-                            )
-                        )
-                        items_and_dates.add((account.id, asset.code, date))
-
-            # Prepare filters for bulk deletion
-            account_ids = {account_id for account_id, _, _ in items_and_dates}
-            asset_codes = {asset_code for _, asset_code, _ in items_and_dates}
-            dates = {date for _, _, date in items_and_dates}
-
-            # Bulk delete existing BalanceHistory entries
-            BalanceHistory.objects.filter(
-                account_id__in=account_ids,
-                asset__code__in=asset_codes,
-                date__in=dates
-            ).delete()
-
-            # Bulk create all BalanceHistory records
-            BalanceHistory.objects.bulk_create(all_balance_history_objs)
-
-        # Update the user's last_full_refresh timestamp
-        user.last_full_refresh = timezone.now()
-        user.save()
-
-        return redirect("home")
+        return JsonResponse(progress)
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
