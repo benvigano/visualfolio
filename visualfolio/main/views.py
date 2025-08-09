@@ -44,10 +44,10 @@ from django.http import JsonResponse
 
 class CustomErrorView(View):
     def get(self, request, *args, **kwargs):
-        return redirect("home")
+        return redirect("overview")
 
     def post(self, request, *args, **kwargs):
-        return redirect("home")
+        return redirect("overview")
 
 
 class DemoLoginView(View):
@@ -55,7 +55,7 @@ class DemoLoginView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect("home")
+            return redirect("overview")
         return super().dispatch(request, *args, **kwargs)
 
     def _generate_unique_credentials(self):
@@ -230,8 +230,8 @@ class DemoInitProgressView(LoginRequiredMixin, View):
         return JsonResponse(progress)
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "main/home.html"
+class OverviewView(LoginRequiredMixin, TemplateView):
+    template_name = "main/overview.html"
     login_url = "demo_login"
 
     def get_context_data(self, **kwargs):
