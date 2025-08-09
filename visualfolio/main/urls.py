@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     LoginView,
-    HomeView,
+    OverviewView,
     AssetsView,
     AccountsView,
     EarningsView,
@@ -10,7 +10,7 @@ from .views import (
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
-    path('home/', HomeView.as_view(), name='home'),
+    path('overview/', OverviewView.as_view(), name='overview'),
     path('assets/', AssetsView.as_view(), name='assets'),
     path('accounts/', AccountsView.as_view(), name='accounts'),
     path('earnings/', EarningsView.as_view(), name='earnings'),

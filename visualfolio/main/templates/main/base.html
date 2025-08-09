@@ -85,10 +85,10 @@
                 </div>
             </div>
             <ul>
-                <!-- Home Menu Item -->
+                <!-- Overview Menu Item -->
                 <li>
-                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'home' %} bg-(--third-bg-color)"
-                       {% else %} " href="{% url 'home' %}" {% endif %} >
+                    <a class="flex items-center p-2 rounded-md group text-(--first-text-color) hover:bg-(--third-bg-color) {% if current_view == 'overview' %} bg-(--third-bg-color)"
+                       {% else %} " href="{% url 'overview' %}" {% endif %} >
                     <svg class="mr-2 w-4 h-4 text-current"
                          aria-hidden="true"
                          xmlns="http://www.w3.org/2000/svg"
@@ -98,9 +98,9 @@
                          viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                               class="icon-custom-stroke-width"
-                              d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"/>
+                              d="M3 15v4m6-6v6m6-4v4m6-6v6M3 11l6-5 6 5 5.5-5.5"/>
                     </svg>
-                    <span>Home</span> </a>
+                    <span>Overview</span> </a>
                 </li>
                 <!-- Assets Menu Item -->
                 <li>
@@ -133,8 +133,9 @@
                          height="24"
                          fill="none"
                          viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" class="icon-custom-stroke-width"
-                              d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                              class="icon-custom-stroke-width"
+                              d="M3 21h18M4 18h16M6 10v8m4-8v8m4-8v8m4-8v8M4 9.5v-.955a1 1 0 0 1 .458-.84l7-4.52a1 1 0 0 1 1.084 0l7 4.52a1 1 0 0 1 .458.84V9.5a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5Z"/>
                     </svg>
                     <span>Accounts</span> </a>
                 </li>

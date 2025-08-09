@@ -37,10 +37,10 @@ from .models import Transaction, Account, Asset, Trade, BalanceHistory, AssetCla
 
 class CustomErrorView(View):
     def get(self, request, *args, **kwargs):
-        return redirect("home")
+        return redirect("overview")
 
     def post(self, request, *args, **kwargs):
-        return redirect("home")
+        return redirect("overview")
 
 
 class LoginView(View):
@@ -80,8 +80,8 @@ class LoginView(View):
         return render(request, "main/login.html")
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "main/home.html"
+class OverviewView(LoginRequiredMixin, TemplateView):
+    template_name = "main/overview.html"
     login_url = "login"
 
     def get_context_data(self, **kwargs):
