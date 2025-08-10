@@ -23,6 +23,85 @@
 <br><br>
 
 ## Pages
+# Set up (production)
+*(Linux Server)*
+
+The app is self-contained, running these comman automatically sets up **all required services** (Django + Postgres)
+
+**Clone:**
+```bash
+git clone https://github.com/benvigano/visualfolio.git
+cd visualfolio
+```
+
+**Set environment varaibles:**
+```bash
+cp env.example .env
+```
+Replace the placeholders in .env with your your varaibles:
+
+
+**Deploy:**
+```bash
+docker-compose up -d
+docker-compose exec app python manage.py migrate
+```
+
+**Set up external access:**
+
+*Recommended: Cloudflare Tunnel*
+```bash
+# Authenticate with Cloudflare
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create visualfolio
+
+# Get tunnel ID
+cloudflared tunnel list
+
+# Create config file (~/.cloudflared/config.yml)
+# Add:
+# tunnel: <tunnel-id>
+# credentials-file: ~/.cloudflared/<tunnel-id>.json
+# ingress:
+#   - hostname: your-domain.com
+#     service: http://localhost:8000
+#   - service: http_status:404
+
+# Add CNAME record: your-domain.com -> <tunnel-id>.cfargotunnel.com
+
+# Run tunnel
+cloudflared tunnel run visualfolio
+```
+
+*Standard: Reverse Proxy + SSL*
+- Configure nginx/Apache with SSL certificates
+- Point proxy to http://localhost:8000
+- Uncomment ports in docker-compose.yml if needed
+
+<br><br>
+
+# Run locally (development)
+*(Windows/macOS/Linux)*
+
+**Clone:**
+```bash
+git clone https://github.com/benvigano/visualfolio.git
+cd visualfolio
+```
+
+**Start development:**
+```bash
+docker-compose -f docker-compose.dev.yml --env-file env.dev.example up -d
+docker-compose -f docker-compose.dev.yml exec app-dev python manage.py migrate
+```
+
+**Access:** http://localhost:8001
+
+<br><br>
+
+
 
 ### Streamgraph
 The Home page Streamgraph is a specialized wealth visualization designed to visually separate **earnings/expenses** and **changes in asset value.**

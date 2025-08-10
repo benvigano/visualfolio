@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db-dev:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-visualfolio_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-visualfolio_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-visualfolio_dev} -d ${POSTGRES_DB:-visualfolio_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - visualfolio-dev-network
+
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      db-dev:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-secret-key-not-for-production}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-true}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8001,http://127.0.0.1:8001}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-visualfolio_dev}:${POSTGRES_PASSWORD:-dev_password_change_me}@db-dev:5432/${POSTGRES_DB:-visualfolio_dev}
+    ports:
+      - "${APP_PORT:-8001}:8000"
+    volumes:
+      # Mount source code for hot reloading
+      - .:/app
+      - dev_static_files:/app/staticfiles
+      # Exclude Python cache and other build artifacts
+      - /app/__pycache__
+      - /app/.pytest_cache
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/overview/', timeout=10)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - visualfolio-dev-network
+
+
+
+volumes:
+  postgres_dev_data:
+  dev_static_files:
+
+networks:
+  visualfolio-dev-network:
+    driver: bridge
