@@ -45,15 +45,13 @@ services:
       - /app/.pytest_cache
       - /app/node_modules
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/overview/', timeout=10)"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/overview/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
     networks:
       - visualfolio-dev-network
-
-
 
 volumes:
   postgres_dev_data:

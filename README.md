@@ -95,20 +95,28 @@ cloudflared tunnel run visualfolio
 
 >The app is self-contained, the following commands automatically set up a docker stack with **all required services** (Django + Postgres)
 
-**1) Clone:**
-```bash
-git clone https://github.com/benvigano/visualfolio.git
-cd visualfolio
-```
+**1) Install Node.js  (on host, not in the container):**
+- [Node.js](https://nodejs.org/).
 
-**2) Start development:**
-```bash
-docker-compose -f docker-compose.dev.yml --env-file env.dev.example up -d
-docker-compose -f docker-compose.dev.yml exec app-dev python manage.py makemigrations
-docker-compose -f docker-compose.dev.yml exec app-dev python manage.py migrate
-```
+**2) Install project dependencies:**
+- In Django root directory (`visualfolio/visualfolio`) run:
+  ```bash
+  npm install
+  ```
 
-**3) Access at:** http://localhost:8001
+**3) Start the development servers:**
+- **In one terminal**, start the Docker containers:
+  ```bash
+  docker-compose -f docker-compose.dev.yml --env-file env.dev.example up -d
+  docker-compose -f docker-compose.dev.yml exec app-dev python manage.py makemigrations
+  docker-compose -f docker-compose.dev.yml exec app-dev python manage.py migrate
+  ```
+- **In a second terminal**, start the Tailwind CSS watcher (on host machine):
+  ```bash
+  npm run watch:css
+  ```
+
+**4) Access at:** http://localhost:8001
 
 <br><br>
 
