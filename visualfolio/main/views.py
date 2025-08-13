@@ -46,7 +46,7 @@ class CustomErrorView(View):
 class LoginView(View):
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect("home")
+            return redirect("overview")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -71,7 +71,7 @@ class LoginView(View):
             if user.check_password(password_post):
                 # Log the user in
                 login(request, user)
-                return redirect("home")
+                return redirect("overview")
             else:
                 messages.error(request, "Invalid credentials")
         except User.DoesNotExist:
@@ -340,7 +340,7 @@ class AssetsView(LoginRequiredMixin, TemplateView):
         # Get valid range dates
         valid_range_start, valid_range_end = BalanceHistory.get_valid_range_dates(self.request.user)
         
-        # Check if we have enough data points (same as HomeView)
+        # Check if we have enough data points
         has_enough_data = (
             valid_range_start is not None 
             and valid_range_end is not None 
