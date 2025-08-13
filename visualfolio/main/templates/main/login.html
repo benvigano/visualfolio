@@ -4,6 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visualfolio - Login</title>
         <link rel="icon" href="{% static 'main/img/favicon.svg' %}" type="image/svg+xml">
         <link rel="apple-touch-icon" sizes="300x300" href={% static 'main/img/favicon-300x300.png' %}">
         <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
@@ -54,39 +55,39 @@
                })();
         </script>
     </head>
-    <body>
-        <body class="flex bg-(--first-bg-color) h-screen">
-    <div class="desktop-only-message min-h-screen w-full relative">
-        <div class="inset-0 absolute flex items-center justify-center">
-            <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
-                Visualfolio is currently available only for larger screens.
+    <body class="flex bg-(--first-bg-color) h-screen">
+        <div class="desktop-only-message min-h-screen w-full relative">
+            <div class="inset-0 absolute flex items-center justify-center">
+                <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
+                    Visualfolio is currently available only for larger screens.
+                </div>
             </div>
         </div>
-    </div>
-            <div class="wrapper w-full h-full text-(--first-text-color)">
-                <section>
-                    <div class="flex flex-col items-center justify-center p-10 h-screen">
-                        <a href="#" class="flex items-center text-2xl font-semibold">
-                            <!-- Logo Section -->
-                            <div class="text-center pb-10 w-52">
-                                    <picture>
-                                        <img src="{% static 'main/img/logo-white.svg' %}"
-                                             class="block dark:hidden w-full h-auto"
-                                             alt="Visualfolio logo">
-                                        <img src="{% static 'main/img/logo-black.svg' %}"
-                                             class="hidden dark:block w-full h-auto"
-                                             alt="Visualfolio logo">
-                                    </picture>
-                                </a>
-                            </div>
-                        </a>
-                        <div class="w-full bg-(--second-bg-color) rounded-xl border border-(--border-color) max-w-sm">
-                            <div class="p-8 space-y-4">
-                                <h1 class="font-display font-medium text-2xl text-(--first-text-color)">Sign in</h1>
-                                {% if messages %}
-                                    {% for message in messages %}<p style="color: red;">{{ message }}</p>{% endfor %}
-                                {% endif %}
-                                <form class="space-y-6" action="{% url 'login' %}" method="post">
+        <div class="wrapper w-full h-full text-(--first-text-color)">
+            <section>
+                <div class="flex flex-col items-center justify-center p-10 h-screen">
+                    <a href="#" class="flex items-center text-2xl font-semibold">
+                        <!-- Logo Section -->
+                        <div class="text-center pb-10 w-52">
+                            <picture>
+                                <img src="{% static 'main/img/logo-white.svg' %}"
+                                     class="block dark:hidden w-full h-auto"
+                                     alt="Visualfolio logo">
+                                <img src="{% static 'main/img/logo-black.svg' %}"
+                                     class="hidden dark:block w-full h-auto"
+                                     alt="Visualfolio logo">
+                            </picture>
+                        </div>
+                    </a>
+                    <div class="w-full bg-(--second-bg-color) rounded-xl border border-(--border-color) max-w-sm">
+                        <div class="p-8 space-y-4">
+                            <h1 class="font-display font-medium text-2xl text-(--first-text-color)">Sign in</h1>
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <p class="text-red-500 text-sm">{{ message }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <form class="space-y-6" action="{% url 'login' %}" method="post">
                                     {% csrf_token %}
                                     <div>
                                         <input type="text"
@@ -112,12 +113,19 @@
                                             Sign in
                                         </button>
                                     </div>
+                                    <p class="text-sm text-(--second-text-color) text-center">
+                                        Don’t have an account?
+                                        <a href="{% url 'register' %}"
+                                           class="font-medium hover:underline text-(--first-accent-color)">
+                                            Sign up
+                                        </a>
+                                    </p>
                                 </form>
                             </div>
                         </div>
                         <div class="h-20"></div>
                     </div>
                 </section>
-            </div>
-        </body>
-    </html>
+        </div>
+    </body>
+</html>
