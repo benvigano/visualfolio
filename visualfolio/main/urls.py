@@ -5,11 +5,15 @@ from .views import (
     AssetsView,
     AccountsView,
     EarningsView,
-    TransactionsView
+    TransactionsView,
+    RegistrationView,
+    LogoutView,
 )
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('register/', RegistrationView.as_view(), name='register'),
     path('overview/', OverviewView.as_view(), name='overview'),
     path('assets/', AssetsView.as_view(), name='assets'),
     path('accounts/', AccountsView.as_view(), name='accounts'),

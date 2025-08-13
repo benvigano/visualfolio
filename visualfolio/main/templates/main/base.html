@@ -68,21 +68,31 @@
 <div class="wrapper flex h-full">
     <div id="sidebar"
          class="text-sm font-normal text-(--third-text-color) fixed z-10 flex flex-col justify-between h-screen px-3 py-3 overflow-y-auto bg-(--second-bg-color) border-r border-(--border-color) w-56">
-        <div class="h-24">
-            <div>
-                <div class="h-2"></div>
-                <div class="flex items-center ml-1 mr-2">
+        <div>
+            <div class="h-2"></div>
+            <div class="relative">
+                <button id="user-menu-button" type="button" class="flex items-center w-full p-4 text-left rounded-lg focus:outline-none hover:bg-(--third-bg-color) cursor-pointer">
                     <div class="relative flex-shrink-0 inline-flex items-center justify-center w-8 h-8 overflow-hidden rounded-full bg-(--mid-bg-color)">
                         <span class="font-semibold text-md text-(--third-text-color)">
                            {{ user.first_name|default:''|slice:":1" }}{{ user.last_name|default:''|slice:":1" }}
                         </span>
                     </div>
-                    <span class="text-(--first-text-color) text-sm m-2">{{ user.first_name }}</span>
+                    <span class="text-(--first-text-color) text-sm ml-3 flex-1">{{ user.first_name }} {{ user.last_name }}</span>
+                </button>
+                <div id="user-menu" class="hidden fixed z-20 w-72 bg-(--first-bg-color) rounded-xl border border-(--border-color)">
+                    <div class="p-2">
+                        <a href="{% url 'logout' %}" class="flex items-center p-2 rounded-md text-sm text-(--first-text-color) hover:bg-(--second-bg-color)">
+                            <svg class="mr-2 w-4 h-4 text-current" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+                            </svg>
+                            <span>Sign out</span>
+                        </a>
+                    </div>
                 </div>
-                <!-- Divider -->
-                <div class="py-5">
-                    <hr class="h-px mx-3 bg-(--border-color) border-0 rounded">
-                </div>
+            </div>
+            <!-- Divider -->
+            <div class="py-5">
+                <hr class="h-px mx-3 bg-(--border-color) border-0 rounded">
             </div>
             <ul>
                 <!-- Overview Menu Item -->
@@ -269,7 +279,7 @@
         <div class="w-6 h-6 border-2 border-(--first-text-color) border-t-transparent border-b-transparent rounded-full animate-spin [animation-duration:500ms]"></div>
     </div>
     <div id="page-content" class="invisible h-full">
-        {% block content %}{% endblock %}
+        {% block content %}{% endblock content %}
     </div>
 </div>
 <script>
@@ -302,6 +312,32 @@
         }, 1000);
 
     };
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+
+        if (userMenuButton && userMenu) {
+            userMenuButton.addEventListener('click', function(event) {
+                if (userMenu.classList.contains('hidden')) {
+                    // Position the dropdown below the button
+                    const buttonRect = userMenuButton.getBoundingClientRect();
+                    userMenu.style.left = buttonRect.left + 'px';
+                    userMenu.style.top = (buttonRect.bottom + 4) + 'px';
+                }
+                userMenu.classList.toggle('hidden');
+                event.stopPropagation();
+            });
+
+            // Close the dropdown if the user clicks outside of it
+            window.addEventListener('click', function(event) {
+                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>

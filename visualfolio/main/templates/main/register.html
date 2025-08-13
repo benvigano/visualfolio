@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visualfolio - Register</title>
+        <link rel="icon" href="{% static 'main/img/favicon.svg' %}" type="image/svg+xml">
+        <link rel="apple-touch-icon" sizes="300x300" href={% static 'main/img/favicon-300x300.png' %}">
+        <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+              rel="stylesheet">
+        <meta name="robots" content="noindex">
+        <script>
+                // Function to get cookie value
+                function getCookie(name) {
+                  const value = `; ${document.cookie}`;
+                  const parts = value.split(`; ${name}=`);
+                  if (parts.length === 2) return parts.pop().split(';').shift();
+               }
+
+               // Function to set cookie value
+               function setCookie(name, value) {
+                  document.cookie = `${name}=${value}; path=/; domain=.visualfol.io; Secure; SameSite=Strict`;
+               }
+
+               const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+               function detectSystemTheme() {
+                  if (prefersDarkScheme.matches) {
+                     return 'dark';
+                  } else {
+                     return 'light';
+                  }
+               }
+
+               // Function to apply the theme
+               function applyCookieTheme() {
+                  let theme = getCookie('theme');
+                  if (theme === 'dark') {
+                     document.documentElement.classList.add('dark');
+                  } else if (theme === 'light') {
+                     document.documentElement.classList.remove('dark');
+                  }
+               }
+
+               // Initialize theme
+               (function () {
+                  let theme = getCookie('theme');
+                  if (!theme) {
+                     detectedTheme = detectSystemTheme();
+                     setCookie('theme', detectedTheme);
+                     applyCookieTheme();
+                  }
+                  else { applyCookieTheme(); }
+               })();
+        </script>
+    </head>
+    <body class="flex bg-(--first-bg-color) h-screen">
+    <div class="desktop-only-message min-h-screen w-full relative">
+        <div class="inset-0 absolute flex items-center justify-center">
+            <div class="text-(--third-text-color) rounded-xl bg-(--third-bg-color) px-3 py-2 m-12">
+                Visualfolio is currently available only for larger screens.
+            </div>
+        </div>
+    </div>
+            <div class="wrapper w-full h-full text-(--first-text-color)">
+                <section>
+                    <div class="flex flex-col items-center justify-center p-10 h-screen">
+                        <a href="#" class="flex items-center text-2xl font-semibold">
+                            <!-- Logo Section -->
+                            <div class="text-center pb-10 w-52">
+                                    <picture>
+                                        <img src="{% static 'main/img/logo-white.svg' %}"
+                                             class="block dark:hidden w-full h-auto"
+                                             alt="Visualfolio logo">
+                                        <img src="{% static 'main/img/logo-black.svg' %}"
+                                             class="hidden dark:block w-full h-auto"
+                                             alt="Visualfolio logo">
+                                    </picture>
+                            </div>
+                        </a>
+                        <div class="w-full bg-(--second-bg-color) rounded-xl border border-(--border-color) max-w-sm">
+                            <div class="p-8 space-y-4">
+                                <h1 class="font-display font-medium text-2xl text-(--first-text-color)">Sign up</h1>
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <p class="text-red-500 text-sm">{{ message }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                <form class="space-y-6" action="{% url 'register' %}" method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                        <input type="text"
+                                               name="username"
+                                               id="username"
+                                               placeholder="username"
+                                               value="{{ username }}"
+                                               required
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
+                                    </div>
+                                    <div class="flex space-x-4">
+                                        <div class="w-1/2">
+                                            <input type="text"
+                                                   name="first_name"
+                                                   id="first_name"
+                                                   placeholder="first name"
+                                                   value="{{ first_name }}"
+                                                   required
+                                                   class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
+                                        </div>
+                                        <div class="w-1/2">
+                                            <input type="text"
+                                                   name="last_name"
+                                                   id="last_name"
+                                                   placeholder="last name"
+                                                   value="{{ last_name }}"
+                                                   required
+                                                   class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <input type="password"
+                                               name="password"
+                                               id="password"
+                                               placeholder="password"
+                                               required
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
+                                    </div>
+                                    <div>
+                                        <input type="password"
+                                               name="password_confirm"
+                                               id="password_confirm"
+                                               placeholder="confirm password"
+                                               required
+                                               class="focus:outline-0 transition duration-100 focus:bg-(--mid-bg-color) bg-(--third-bg-color) border border-(--border-color) text-(--first-text-color) rounded-lg block w-full py-2 px-3">
+                                        <div id="password-match-message" class="text-sm mt-1 h-4"></div>
+                                    </div>
+                                    <div class="flex items-center justify-end">
+                                        <button type="submit"
+                                                id="submit-button"
+                                                class="text-white bg-(--first-accent-color) transition duration-100 hover:bg-(--second-accent-color) focus:outline-none font-medium rounded-lg px-5 py-2 text-center cursor-pointer">
+                                            Sign up
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-(--second-text-color) text-center">
+                                        Already have an account?
+                                        <a href="{% url 'login' %}"
+                                           class="font-medium hover:underline text-(--first-accent-color)">
+                                            Sign in
+                                        </a>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="h-20"></div>
+                    </div>
+                </section>
+            </div>
+            <script>
+                const passwordInput = document.getElementById('password');
+                const confirmPasswordInput = document.getElementById('password_confirm');
+                const messageElement = document.getElementById('password-match-message');
+                const submitButton = document.getElementById('submit-button');
+
+                function validatePasswords() {
+                    const password = passwordInput.value;
+                    const confirmPassword = confirmPasswordInput.value;
+                    const passwordsMatch = password === confirmPassword;
+
+                    if (passwordsMatch) {
+                        messageElement.textContent = '';
+                    } else {
+                        if (confirmPassword.length > 0) {
+                            messageElement.textContent = 'Passwords do not match.';
+                            messageElement.className = 'text-red-500 text-sm mt-1 h-4';
+                        } else {
+                            messageElement.textContent = '';
+                        }
+                    }
+
+                    if (passwordsMatch && password.length > 0) {
+                        submitButton.disabled = false;
+                        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        submitButton.disabled = true;
+                        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+
+                // Initial state
+                validatePasswords();
+
+                passwordInput.addEventListener('input', validatePasswords);
+                confirmPasswordInput.addEventListener('input', validatePasswords);
+            </script>
+    </body>
+</html>

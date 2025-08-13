@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.shortcuts import render
 from django.views import View
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
@@ -78,6 +78,51 @@ class LoginView(View):
             messages.error(request, "Invalid credentials")
         
         return render(request, "main/login.html")
+
+
+class RegistrationView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect("overview")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "main/register.html")
+
+    def post(self, request, *args, **kwargs):
+        User = get_user_model()
+        username = request.POST.get("username")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        password = request.POST.get("password")
+        password_confirm = request.POST.get("password_confirm")
+
+        if not all([username, first_name, last_name, password, password_confirm]):
+            messages.error(request, "All fields are required.")
+            return render(request, "main/register.html", {"username": username, "first_name": first_name, "last_name": last_name})
+
+        if password != password_confirm:
+            messages.error(request, "Passwords do not match.")
+            return render(request, "main/register.html", {"username": username, "first_name": first_name, "last_name": last_name})
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return render(request, "main/register.html", {"first_name": first_name, "last_name": last_name})
+
+        try:
+            user = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name)
+            user.save()
+            login(request, user)
+            return redirect("overview")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+            return render(request, "main/register.html", {"username": username, "first_name": first_name, "last_name": last_name})
+
+
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect("login")
 
 
 class OverviewView(LoginRequiredMixin, TemplateView):
