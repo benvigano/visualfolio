@@ -18,36 +18,44 @@
 ---
 
 <p align="center">
-  Visualfolio is a highly-visual, <strong>open source, personal finance dashboard</strong> that gives the user a full view of all their holdings, transactions, and trades across bank accounts, investment platforms, and digital wallets.
+  Visualfolio is a highly-visual <strong>personal finance dashboard</strong> that gives you a full view of all your holdings, transactions, and trades across bank accounts, investment platforms, and digital wallets.
+</p>
+
+<br>
+
+<p align="center">
+  <a href="https://visualfol.io/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/Try%20Live%20Demo-visualfol.io-4F46E5?style=for-the-badge&logo=external-link&logoColor=white" alt="Try Live Demo">
+  </a>
 </p>
 <br><br>
 
-## Pages
 # Set up (production)
 *(Linux Server)*
 
-The app is self-contained, running these comman automatically sets up **all required services** (Django + Postgres)
+>The app is self-contained, the following commands automatically set a docker stack with **all required services** (Django + Postgres)
 
-**Clone:**
+**1) Clone:**
 ```bash
 git clone https://github.com/benvigano/visualfolio.git
 cd visualfolio
 ```
 
-**Set environment varaibles:**
+**2) Copy .env template and fill in your environment varaibles:**
 ```bash
 cp env.example .env
 ```
-Replace the placeholders in .env with your your varaibles:
+-- Replace the placeholders in `.env` with your variables
 
 
-**Deploy:**
+**3) Deploy:**
 ```bash
 docker-compose up -d
+docker-compose exec app python manage.py makemigrations
 docker-compose exec app python manage.py migrate
 ```
 
-**Set up external access:**
+**4) Set up external access:**
 
 *Recommended: Cloudflare Tunnel*
 ```bash
@@ -78,30 +86,34 @@ cloudflared tunnel run visualfolio
 *Standard: Reverse Proxy + SSL*
 - Configure nginx/Apache with SSL certificates
 - Point proxy to http://localhost:8000
-- Uncomment ports in docker-compose.yml if needed
+- Uncomment ports in `docker-compose.yml` if needed
 
 <br><br>
 
 # Run locally (development)
 *(Windows/macOS/Linux)*
 
-**Clone:**
+>The app is self-contained, the following commands automatically set up a docker stack with **all required services** (Django + Postgres)
+
+**1) Clone:**
 ```bash
 git clone https://github.com/benvigano/visualfolio.git
 cd visualfolio
 ```
 
-**Start development:**
+**2) Start development:**
 ```bash
 docker-compose -f docker-compose.dev.yml --env-file env.dev.example up -d
+docker-compose -f docker-compose.dev.yml exec app-dev python manage.py makemigrations
 docker-compose -f docker-compose.dev.yml exec app-dev python manage.py migrate
 ```
 
-**Access:** http://localhost:8001
+**3) Access at:** http://localhost:8001
 
 <br><br>
 
 
+# The app
 
 ### Streamgraph
 The Home page Streamgraph is a specialized wealth visualization designed to visually separate **earnings/expenses** and **changes in asset value.**
@@ -127,7 +139,9 @@ Visualfolio aims to provide a unified view of all the user's assets across all t
     <img src="https://github.com/user-attachments/assets/4050fc33-b15a-4f51-afe0-5ee923a073b4" alt="Earnings page screen capture" style="width: 900px; height: auto;">
 </p>
 
-## Roadmap
+<br><br>
+
+# Roadmap
 - Bank data API integration ([GoCardless](https://gocardless.com/bank-account-data/), [Salt Edge](https://www.saltedge.com/))
 - Manual account setup for accounts not supported by the bank data API (single or batch-upload for transactions)
 - Create logomark (add to logotype and as favicon)
