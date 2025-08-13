@@ -1,8 +1,6 @@
 import colorsys
 import textwrap
-import requests
 import pandas as pd
-import datetime
 import plotly.graph_objects as go
 from plotly.offline import plot
 import numpy as np
